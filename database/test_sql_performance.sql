@@ -54,6 +54,7 @@ FROM users;
 EXPLAIN ANALYZE
 SELECT *
 FROM users
+WHERE org_id = '47'
 AND org_unit_id = '4287';
 
 -- =========================================================

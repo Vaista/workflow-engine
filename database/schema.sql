@@ -26,6 +26,7 @@ CREATE TABLE organization_units (
 
 CREATE TABLE users (
     user_id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    org_id int REFERENCES organization_units(id),
     org_unit_id int REFERENCES organization_units(org_unit_id),
     name varchar(60) not null,
     email TEXT UNIQUE NOT NULL,
@@ -96,8 +97,7 @@ CREATE TABLE workflow_steps (
     step_name varchar(30) NOT NULL,
     step_description varchar(255) DEFAULT NULL,
     step_config jsonb,
-    UNIQUE(workflow_id, step_number)
-);
+    CONSTRAINT uq_workflow_step_number UNIQUE (workflow_id, step_number)
 
 CREATE TABLE workflow_regions (
     id SERIAL PRIMARY KEY NOT NULL,
@@ -134,7 +134,7 @@ CREATE INDEX idx_org_units_org_region
 ON organization_units(org_id, region_id);
 
 CREATE INDEX users_org_unit_id
-ON users(org_unit_id);
+ON users(org_id, org_unit_id);
 
 CREATE INDEX users_teams_team_id
 ON user_teams(team_id);

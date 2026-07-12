@@ -70,6 +70,7 @@ CROSS JOIN generate_series(1,10) u;
 -- =========================================================
 
 INSERT INTO users(
+    org_id,
     org_unit_id,
     name,
     email,
@@ -79,6 +80,7 @@ INSERT INTO users(
     is_active
 )
 SELECT
+    ((gs - 1) % 5000) + 1,
     ((gs - 1) % 5000) + 1,
     'User ' || gs,
     'user' || gs || '@mail.com',
