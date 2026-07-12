@@ -1,15 +1,27 @@
-from app.repositories.workflow_repository import WorkflowRepository
+from fastapi import Depends
+from sqlalchemy.orm import Session
+
+from app.repositories.workflow_repository import WorkflowRepository, WorkflowRegionRepository
+from app.repositories.region_repository import RegionRepository
 from app.schemas.workflows import WorkflowCreate
 from app.schemas.auth import CurrentUser
 from app.models.workflow import Workflow
 from app.api.deps import get_db
-from fastapi import Depends
 from app.exceptions.exceptions.workflows import WorkflowAlreadyExists
 
 
 class WorkflowService:
-    def __init__(self, workflow_repository: WorkflowRepository, session = Depends(get_db)):
+    def __init__(
+            self, 
+            workflow_repository: WorkflowRepository, 
+            region_repository: RegionRepository, 
+            workflow_region_repository: WorkflowRegionRepository, 
+            session: Session
+        ):
+        
         self.workflow = workflow_repository
+        self.regions = region_repository
+        self.workflow_regions = workflow_region_repository
         self.session = session
 
     def create_workflow(self, workflow: WorkflowCreate, current_user: CurrentUser):
@@ -17,7 +29,7 @@ class WorkflowService:
 
         try:
             # Check if the workflow already exists
-            existing_workflow = self.workflow.get_workflow_by_name_and_org_unit(workflow, current_user.org_unit_id)
+            existing_workflow = self.workflow.get_workflow_by_name_and_org_unit(workflow.name, current_user.org_unit_id)
 
             if existing_workflow:
                 raise WorkflowAlreadyExists()
@@ -32,14 +44,19 @@ class WorkflowService:
             )
 
             # Create the workflow
-            created = self.workflow.create_new_workflow(new_workflow)
-            self.session.refresh(created)
+            created_workflow = self.workflow.create_new_workflow(new_workflow)
 
             # Add workflow regions
+            region_codes = workflow.region_codes
+            
+            regions = self.regions.get_by_codes(region_codes)
 
+            # Create workflow regions
+            self.workflow_regions.create_workflow_region_mapping(created_workflow, regions)
+
+            self.session.refresh(created_workflow)
 
             self.session.commit()
-
         except:
             self.session.rollback()
             raise

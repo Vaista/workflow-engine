@@ -1,7 +1,8 @@
 from sqlalchemy.orm import Session
 from sqlalchemy import select
 
-from app.models.workflow import Workflow
+from app.models.workflow import Workflow, WorkflowRegion
+from app.models.region import Regions
 
 
 class WorkflowRepository:
@@ -46,3 +47,18 @@ class WorkflowRepository:
 
     def delete_workflow(self, workflow_id: int):
         pass
+
+
+class WorkflowRegionRepository:
+    """Workflow Region Mapping"""
+
+    def __init__(self, session: Session):
+        self.session = session
+
+    def create_workflow_region_mapping(self, workflow: Workflow, regions: list[Regions]):
+        
+        for region in regions:
+            workflow_region = WorkflowRegion(workflow_id = workflow.id, region_id=region.id)
+            self.session.add(workflow_region)
+        
+        self.session.flush()

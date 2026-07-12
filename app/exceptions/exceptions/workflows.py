@@ -7,3 +7,4 @@ class WorkflowAlreadyExists(AppException):
 
 class WorkflowNotFound(AppException):
     pass
+

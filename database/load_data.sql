@@ -37,8 +37,8 @@ TRUNCATE TABLE regions RESTART IDENTITY CASCADE;
 -- REGIONS (UNIQUE name)
 -- =========================================================
 
-INSERT INTO regions(name)
-SELECT 'R' || gs
+INSERT INTO regions(name, code)
+SELECT 'R' || gs, 'C' || gs
 FROM generate_series(1,20) gs;
 
 -- =========================================================

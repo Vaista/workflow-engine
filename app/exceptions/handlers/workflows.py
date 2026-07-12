@@ -3,8 +3,7 @@ from fastapi.responses import JSONResponse
 
 from app.exceptions.exceptions.workflows import (
     WorkflowAlreadyExists,
-    WorkflowNotFound,
-    WorkflowCreationFailed
+    WorkflowNotFound
 )
 
 

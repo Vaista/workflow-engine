@@ -1,4 +1,5 @@
-from pydantic import BaseSettings, SecretStr, SettingsConfigDict
+from pydantic_settings import BaseSettings, SettingsConfigDict
+from pydantic import SecretStr
 
 
 class Settings(BaseSettings):
@@ -12,7 +13,7 @@ class Settings(BaseSettings):
     DB_PORT: int
     DB_NAME: str
 
-    jwt_secret: str
+    JWT_SECRET: str
 
 
     def get_database_url(self) -> str:
