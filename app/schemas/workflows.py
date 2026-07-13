@@ -1,4 +1,4 @@
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, ConfigDict, Field
 from datetime import datetime
 from typing import Annotated
 
@@ -10,9 +10,10 @@ class WorkflowCreate(BaseModel):
 
 
 class WorkflowResponse(BaseModel):
-    id: int
     name: str
     description: str | None
     is_active: bool
     created_on: datetime
     region_codes: list[str]
+
+    model_config = ConfigDict(from_attributes=True)

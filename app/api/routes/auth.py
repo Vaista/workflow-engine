@@ -5,7 +5,7 @@ from app.api.deps import get_current_user, get_db
 from app.schemas.auth import CurrentUser
 
 
-router = APIRouter()
+router = APIRouter(prefix="/auth", tags=["Authentication"])
 
 
 @router.get("/me")

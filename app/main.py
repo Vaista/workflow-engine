@@ -10,7 +10,7 @@ app = FastAPI()
 # app.include_router(auth.router, prefix="/auth", tags=["Authentication"])
 
 for router in ALL_ROUTERS:
-    app.include_router(router['router'], prefix=f"/{router['prefix']}", tags=[f"{router['tag']}"])
+    app.include_router(router)
 
 
 register_exception_handlers(app)

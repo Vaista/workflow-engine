@@ -1,0 +1,35 @@
+from fastapi import APIRouter, Depends, status
+
+
+from app.services.workflow_service import WorkflowService
+from app.schemas.workflows import WorkflowResponse, WorkflowCreate
+from app.schemas.auth import CurrentUser
+from app.api.deps import get_db, get_current_user
+from app.provider.services import get_workflow_service
+
+
+router = APIRouter(prefix="/workflows", tags=["Workflows"])
+
+
+@router.post(
+    "/", 
+    response_model=WorkflowResponse,
+    status_code=status.HTTP_201_CREATED
+)
+async def create_workflow(
+    workflow: WorkflowCreate,
+    current_user: CurrentUser = Depends(get_current_user),
+    workflow_service: WorkflowService = Depends(get_workflow_service)
+):
+
+    created_workflow = workflow_service.create_workflow(workflow, current_user)
+
+    response = WorkflowResponse(
+        name=created_workflow.name,
+        description=created_workflow.description,
+        is_active=created_workflow.is_active,
+        created_on=created_workflow.created_on,
+        region_codes=workflow.region_codes
+    )
+
+    return response

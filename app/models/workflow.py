@@ -37,13 +37,13 @@ class WorkflowStep(Base):
     workflow_id: Mapped[int] = mapped_column(ForeignKey("workflows.id"))
     step_number: Mapped[int] = mapped_column(Integer, nullable=False)
     step_name: Mapped[str] = mapped_column(String(30), nullable=False)
-    step_description = Mapped[str | None] = mapped_column(String(255), nullable=True)
-    step_config = Mapped[dict] = mapped_column(JSON)
+    step_description: Mapped[str | None] = mapped_column(String(255), nullable=True)
+    step_config: Mapped[dict] = mapped_column(JSON)
 
     __table_args__ = (
-    UniqueConstraint(
-        "workflow_id",
-        "step_number",
-        name="uq_workflow_step_number",
+        UniqueConstraint(
+            "workflow_id",
+            "step_number",
+            name="uq_workflow_step_number",
+        ),
     )
-)
