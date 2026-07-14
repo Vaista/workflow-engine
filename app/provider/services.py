@@ -8,15 +8,15 @@ from app.api.deps import get_db
 
 
 def get_workflow_service(
-    db: Session = Depends(get_db),
+    session: Session = Depends(get_db),
 ) -> WorkflowService:
-    workflow_repository = WorkflowRepository(db)
-    workflow_region_repository = WorkflowRegionRepository(db)
-    region_repository = RegionRepository(db)
+    workflow_repository = WorkflowRepository(session)
+    workflow_region_repository = WorkflowRegionRepository(session)
+    region_repository = RegionRepository(session)
 
     return WorkflowService(
         workflow_repository=workflow_repository,
         workflow_region_repository=workflow_region_repository,
         region_repository=region_repository,
-        session=db,
+        session=session,
     )

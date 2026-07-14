@@ -54,9 +54,12 @@ class WorkflowService:
             # Create workflow regions
             self.workflow_regions.create_workflow_region_mapping(created_workflow, regions)
 
+            self.session.commit()
+
             self.session.refresh(created_workflow)
 
-            self.session.commit()
-        except:
+            return created_workflow
+        
+        except Exception:
             self.session.rollback()
             raise
