@@ -19,13 +19,13 @@ class WorkflowRepository:
 
     def get_workflow_by_id(self, workflow_id: int):
         # Retrieve a workflow by its ID
-        stmt = select(Workflow).where(Workflow.id == workflow_id)
+        stmt = select(Workflow).where(Workflow.id == workflow_id, Workflow.is_deleted==False)
         result = self.session.execute(stmt).scalar_one_or_none()
         return result
 
     def list_all_workflows(self):
         "Fetch all the workflows"
-        stmt = select(Workflow)
+        stmt = select(Workflow).where(Workflow.is_deleted==False)
         result = self.session.execute(stmt).scalars().all()
         return result
 
@@ -58,7 +58,7 @@ class WorkflowRegionRepository:
     def create_workflow_region_mapping(self, workflow: Workflow, regions: list[Regions]):
         
         for region in regions:
-            workflow_region = WorkflowRegion(workflow_id = workflow.id, region_id=region.id)
+            workflow_region = WorkflowRegion(workflow_id = workflow.id, region_id=region.region_id)
             self.session.add(workflow_region)
         
         self.session.flush()

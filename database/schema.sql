@@ -5,8 +5,8 @@ CREATE TYPE workflow_status AS ENUM ('pending', 'active', 'failed', 'cancelled',
 
 CREATE TABLE regions (
     region_id SERIAL PRIMARY KEY not null,
-    name varchar(10) UNIQUE not null,
-    code varchar(5) UNIQUE not null
+    name varchar(60) UNIQUE not null,
+    code varchar(10) UNIQUE not null
 );
 
 CREATE TABLE organizations (
@@ -21,12 +21,12 @@ CREATE TABLE organization_units (
     region_id int REFERENCES regions(region_id),
     name varchar(40) NOT NULL,
     address varchar(120) NOT NULL,
-    UNIQUE(org_id, name)
+    CONSTRAINT uq_org_unit_org_id_name UNIQUE (org_id, name)
 );
 
 CREATE TABLE users (
     user_id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    org_id int REFERENCES organization_units(id),
+    org_id int REFERENCES organizations(id),
     org_unit_id int REFERENCES organization_units(org_unit_id),
     name varchar(60) not null,
     email TEXT UNIQUE NOT NULL,
