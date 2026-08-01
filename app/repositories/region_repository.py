@@ -16,7 +16,10 @@ class RegionRepository:
     
         stmt = select(Regions).where(Regions.code.in_(codes))
 
-        regions = self.session.execute(stmt)
+        regions = self.session.execute(stmt).scalars().all()
+
+        if len(regions) == 0:
+            raise InvalidRegionCodeException(codes)
 
         requested = set(codes)
         found = {region.code for region in regions}

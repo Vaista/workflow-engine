@@ -6,7 +6,6 @@ from app.repositories.region_repository import RegionRepository
 from app.schemas.workflows import WorkflowCreate
 from app.schemas.auth import CurrentUser
 from app.models.workflow import Workflow
-from app.api.deps import get_db
 from app.exceptions.exceptions.workflows import WorkflowAlreadyExists
 
 
