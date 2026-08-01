@@ -5,34 +5,35 @@ from app.services.workflow_service import WorkflowService
 
 
 @pytest.fixture
-def workflow_repo():
+def mock_workflow_repo():
     return Mock()
 
 
 @pytest.fixture
-def region_repo():
+def mock_region_repo():
     return Mock()
 
 
 @pytest.fixture
-def workflow_region_repo():
+def mock_workflow_region_repo():
     return Mock()
 
 
 @pytest.fixture
-def session():
+def mock_session():
     return Mock()
 
 
 @pytest.fixture
-def workflow_service(workflow_repo,
-    region_repo,
-    workflow_region_repo,
-    session
+def mock_workflow_service(
+    mock_workflow_repo,
+    mock_region_repo,
+    mock_workflow_region_repo,
+    mock_session
 ):
     return WorkflowService(
-        workflow_repo,
-        region_repo,
-        workflow_region_repo,
-        session,
+        mock_workflow_repo,
+        mock_region_repo,
+        mock_workflow_region_repo,
+        mock_session,
     )

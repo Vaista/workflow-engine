@@ -2,11 +2,12 @@ from app.repositories.workflow_repository import WorkflowRegionRepository
 from app.models.workflow import WorkflowRegion
 from app.models.region import Regions
 
-
 from sqlalchemy import select
 
 
-def test_create_workflow_region_mapping_return_workflow_list(db_session, workflow):
+def test_create_workflow_region_mapping_return_workflow_list(db_session, workflow_factory):
+
+    workflow = workflow_factory()
 
     # Arrange
     region_list = [('Region 1', 'R1'), ('Region 2', 'R2'), ('Region 3', 'R3')]

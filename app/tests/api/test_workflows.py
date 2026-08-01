@@ -10,82 +10,30 @@ from app.exceptions.exceptions.regions import InvalidRegionCodeException
 from app.api.deps import get_current_user
 from app.schemas.auth import CurrentUser
 from app.schemas.workflows import WorkflowResponse
+from app.tests.builders.responses import workflow_response
+from app.tests.builders.workflow_payload import workflow_payload
 
 
-fake_user = CurrentUser(
-    user_id=UUID("123e4567-e89b-12d3-a456-426614174000"),
-    org_id=1,
-    org_unit_id=1,
-    name="John Doe",
-    email="john@example.com",
-    is_active=True,
-    roles=[],
-    permissions=[],
-)
+def test_create_workflow_returns_201_success(fake_workflow_service, mock_client):
 
-async def override_current_user():
-    return fake_user
+    payload = workflow_payload()
 
+    response = workflow_response(name=payload['name'], description=payload['description'], region_codes=payload['region_codes'])
 
-class FakeWorkflowService():
+    fake_workflow_service.result = response
 
-    def __init__(self, result=None, exception=None):
-        self.result = result
-        self.exception = exception
-
-    def create_workflow(self, workflow, current_user):
-
-        if self.exception:
-            raise self.exception
-
-        return self.result
-
-
-client = TestClient(app)
-
-
-def test_create_workflow_returns_201_success():
-
-    response = WorkflowResponse(
-        name="Leave Approval",
-        description="Leave Workflow",
-        is_active=True,
-        created_on=datetime.now(),
-        region_codes=["APAC"]
-    )
-
-    fake_service = FakeWorkflowService(result=response)
-
-    app.dependency_overrides[get_workflow_service] = lambda: fake_service
-    app.dependency_overrides[get_current_user] = override_current_user
-
-    payload = {
-        "name": "Leave Approval",
-        "description": "Leave workflow",
-        "region_codes": ["APAC"]
-    }
-
-    response = client.post("/workflows/", json=payload)
+    response = mock_client.post("/workflows/", json=payload)
 
     assert response.status_code == 201
 
-    app.dependency_overrides.clear()
 
+def test_create_workflow_returns_409_when_duplicate(fake_workflow_service, mock_client):
 
-def test_create_workflow_returns_409_when_duplicate():
+    payload = workflow_payload()
 
-    fake_service = FakeWorkflowService(exception=WorkflowAlreadyExists)
+    fake_workflow_service.exception = WorkflowAlreadyExists()
 
-    app.dependency_overrides[get_workflow_service] = lambda: fake_service
-    app.dependency_overrides[get_current_user] = override_current_user
-
-    payload = {
-        "name": "Leave Approval",
-        "description": "Leave workflow",
-        "region_codes": ["APAC"]
-    }
-
-    response = client.post("/workflows/", json=payload)
+    response = mock_client.post("/workflows/", json=payload)
 
     assert response.status_code == 409
 
@@ -96,25 +44,16 @@ def test_create_workflow_returns_409_when_duplicate():
         }
     }
 
-    app.dependency_overrides.clear()
 
-
-def test_create_workflow_returns_409_invalid_regions():
+def test_create_workflow_returns_409_invalid_regions(fake_workflow_service, mock_client):
 
     regions = ["APAC", "APAC2"]
 
-    payload = {
-        "name": "Leave Approval",
-        "description": "Leave workflow",
-        "region_codes": regions
-    }
+    payload = workflow_payload(region_codes=["APAC", "APAC2"])
 
-    fake_service = FakeWorkflowService(exception=InvalidRegionCodeException(payload['region_codes']))
+    fake_workflow_service.exception = InvalidRegionCodeException(payload['region_codes'])
 
-    app.dependency_overrides[get_workflow_service] = lambda: fake_service
-    app.dependency_overrides[get_current_user] = override_current_user
-
-    response = client.post("/workflows/", json=payload)
+    response = mock_client.post("/workflows/", json=payload)
 
     assert response.status_code == 409
 
@@ -126,24 +65,12 @@ def test_create_workflow_returns_409_invalid_regions():
         }
     }
 
-    app.dependency_overrides.clear()
 
+def test_create_workflow_returns_423_missing_regions(mock_client):
 
-def test_create_workflow_returns_423_missing_regions():
+    payload = workflow_payload(region_codes=[])
 
-    fake_service = FakeWorkflowService()
-
-    app.dependency_overrides[get_workflow_service] = lambda: fake_service
-    app.dependency_overrides[get_current_user] = override_current_user
-
-    payload = {
-        "name": "Leave Approval",
-        "description": "Leave workflow",
-        "region_codes": []
-    }
-
-    response = client.post("/workflows/", json=payload)
+    response = mock_client.post("/workflows/", json=payload)
 
     assert response.status_code == 422
-
-    app.dependency_overrides.clear()
+    

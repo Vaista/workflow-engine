@@ -12,14 +12,14 @@ import pytest
 
 
 def test_create_workflow_success(
-    workflow_service,
-    workflow_repo,
-    region_repo, 
-    workflow_region_repo, 
-    session        
+    mock_workflow_service,
+    mock_workflow_repo,
+    mock_region_repo, 
+    mock_workflow_region_repo, 
+    mock_session        
 ):
 
-    workflow_repo.get_workflow_by_name_and_org_unit.return_value = None
+    mock_workflow_repo.get_workflow_by_name_and_org_unit.return_value = None
     
     workflow_to_create = WorkflowCreate(
         name='Test Workflow',
@@ -54,31 +54,31 @@ def test_create_workflow_success(
         Mock(id=2)
     ]
 
-    region_repo.get_by_codes.return_value = regions
+    mock_region_repo.get_by_codes.return_value = regions
 
-    workflow_repo.create_new_workflow.return_value = created_workflow
+    mock_workflow_repo.create_new_workflow.return_value = created_workflow
 
-    result = workflow_service.create_workflow(workflow_to_create, current_user)
+    result = mock_workflow_service.create_workflow(workflow_to_create, current_user)
 
-    workflow_repo.get_workflow_by_name_and_org_unit.assert_called_once()
-    workflow_repo.create_new_workflow.assert_called_once()
+    mock_workflow_repo.get_workflow_by_name_and_org_unit.assert_called_once()
+    mock_workflow_repo.create_new_workflow.assert_called_once()
 
-    region_repo.get_by_codes.assert_called_once()
+    mock_region_repo.get_by_codes.assert_called_once()
 
-    workflow_region_repo.create_workflow_region_mapping.assert_called_once_with(
+    mock_workflow_region_repo.create_workflow_region_mapping.assert_called_once_with(
         created_workflow,
         regions
     )
 
-    session.commit.assert_called_once()
-    session.rollback.assert_not_called()
+    mock_session.commit.assert_called_once()
+    mock_session.rollback.assert_not_called()
 
     assert result == created_workflow
 
 
 def test_create_workflow_returns_WorkflowAlreadyExists_Exception(
-    workflow_service,
-    workflow_repo
+    mock_workflow_service,
+    mock_workflow_repo
 ):
 
     user_id = str(uuid.uuid4())
@@ -92,7 +92,7 @@ def test_create_workflow_returns_WorkflowAlreadyExists_Exception(
         created_by=user_id
     )
 
-    workflow_repo.get_workflow_by_name_and_org_unit.return_value = workflow
+    mock_workflow_repo.get_workflow_by_name_and_org_unit.return_value = workflow
 
     workflow_to_create = WorkflowCreate(
         name='Test Workflow',
@@ -112,7 +112,7 @@ def test_create_workflow_returns_WorkflowAlreadyExists_Exception(
     )
 
     with pytest.raises(WorkflowAlreadyExists) as exc_info:
-        workflow_service.create_workflow(workflow_to_create, current_user)
+        mock_workflow_service.create_workflow(workflow_to_create, current_user)
 
     assert exc_info.type is WorkflowAlreadyExists
 
@@ -133,11 +133,11 @@ def test_create_workflow_empty_region_Exception():
 
 
 def test_create_workflow_invalid_region_return_Exception(
-    workflow_service,
-    workflow_repo,
-    region_repo
+    mock_workflow_service,
+    mock_workflow_repo,
+    mock_region_repo
 ):
-    workflow_repo.get_workflow_by_name_and_org_unit.return_value = None
+    mock_workflow_repo.get_workflow_by_name_and_org_unit.return_value = None
         
     workflow_to_create = WorkflowCreate(
         name='Test Workflow',
@@ -158,21 +158,21 @@ def test_create_workflow_invalid_region_return_Exception(
         permissions=[]
     )
 
-    region_repo.get_by_codes.side_effect = InvalidRegionCodeException(workflow_to_create.region_codes)
+    mock_region_repo.get_by_codes.side_effect = InvalidRegionCodeException(workflow_to_create.region_codes)
 
     with pytest.raises(InvalidRegionCodeException) as exc_info:
-        workflow_service.create_workflow(workflow_to_create, current_user)
+        mock_workflow_service.create_workflow(workflow_to_create, current_user)
 
     assert exc_info.type == InvalidRegionCodeException
 
 
 def test_create_workflow_SQLAlchemy_Exception(
-    workflow_service,
-    workflow_repo,
-    region_repo, 
-    session
+    mock_workflow_service,
+    mock_workflow_repo,
+    mock_region_repo, 
+    mock_session
 ):
-    workflow_repo.get_workflow_by_name_and_org_unit.return_value = None
+    mock_workflow_repo.get_workflow_by_name_and_org_unit.return_value = None
         
     workflow_to_create = WorkflowCreate(
         name='Test Workflow',
@@ -198,10 +198,10 @@ def test_create_workflow_SQLAlchemy_Exception(
         Mock(id=2)
     ]
 
-    region_repo.get_by_codes.return_value = regions
-    session.commit.side_effect = SQLAlchemyError("Database error")
+    mock_region_repo.get_by_codes.return_value = regions
+    mock_session.commit.side_effect = SQLAlchemyError("Database error")
 
     with pytest.raises(SQLAlchemyError):
-        workflow_service.create_workflow(workflow_to_create, current_user)
+        mock_workflow_service.create_workflow(workflow_to_create, current_user)
 
-    session.rollback.assert_called_once()
+    mock_session.rollback.assert_called_once()

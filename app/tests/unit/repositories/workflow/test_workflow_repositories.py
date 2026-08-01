@@ -4,16 +4,10 @@ from app.models.workflow import Workflow
 from sqlalchemy import select
 
 
-def test_create_workflow_generates_id(db_session, user):
+def test_create_workflow_generates_id(db_session, workflow_factory):
 
     # Create workflow
-    new_workflow = Workflow(
-        org_id = user.org_id,
-        org_unit_id = user.org_unit_id,
-        name = "Test Workflow",
-        description = "Test Workflow Description",
-        created_by = user.user_id
-    )
+    new_workflow = workflow_factory()
 
     # Act
     repo = WorkflowRepository(db_session)
@@ -23,16 +17,10 @@ def test_create_workflow_generates_id(db_session, user):
     assert created.id is not None
 
 
-def test_get_workflow_by_id_fetch_workflow(db_session, user):
+def test_get_workflow_by_id_fetch_workflow(db_session, workflow_factory):
 
     # Create workflow
-    new_workflow = Workflow(
-        org_id = user.org_id,
-        org_unit_id = user.org_unit_id,
-        name = "Test Workflow",
-        description = "Test Workflow Description",
-        created_by = user.user_id
-    )
+    new_workflow = workflow_factory()
 
     # Act
     repo = WorkflowRepository(db_session)
@@ -55,18 +43,11 @@ def test_get_workflow_by_id_fetch_None(db_session):
     assert fetched_workflow is None
 
 
-def test_get_workflow_by_id_fetch_deleted_workflow_returns_None(db_session, user):
+def test_get_workflow_by_id_fetch_deleted_workflow_returns_None(db_session, workflow_factory):
 
     repo = WorkflowRepository(db_session)
 
-    new_workflow = Workflow(
-        org_id = user.org_id,
-        org_unit_id = user.org_unit_id,
-        name = "Test Workflow",
-        description = "Test Workflow Description",
-        created_by = user.user_id,
-        is_deleted=True
-    )
+    new_workflow = workflow_factory(is_deleted=True)
 
     created = repo.create_new_workflow(new_workflow)
     workflow_id = int(created.id)
@@ -76,20 +57,14 @@ def test_get_workflow_by_id_fetch_deleted_workflow_returns_None(db_session, user
     assert fetched_workflow is None
 
 
-def test_list_all_workflows_return_list_of_workflows(db_session, user):
+def test_list_all_workflows_return_list_of_workflows(db_session, workflow_factory):
     
     repo = WorkflowRepository(db_session)
 
     # Arrange
     for i in range(1, 4):
         # Create workflow
-        new_workflow = Workflow(
-            org_id = user.org_id,
-            org_unit_id = user.org_unit_id,
-            name = f"Test Workflow - {i}",
-            description = f"Test Workflow Description - {i}",
-            created_by = user.user_id
-        )
+        new_workflow = workflow_factory(name=f"Test Workflow - {i}", description=f"Test Workflow Description - {i}")
 
         created = repo.create_new_workflow(new_workflow)
 
@@ -112,7 +87,7 @@ def test_list_all_workflows_returns_None(db_session):
     assert len(workflow_list) == 0
 
 
-def test_list_all_workflows_returns_active_workflows(db_session, user):
+def test_list_all_workflows_returns_active_workflows(db_session, workflow_factory):
     
     # Arrange
     repo = WorkflowRepository(db_session)
@@ -122,14 +97,7 @@ def test_list_all_workflows_returns_active_workflows(db_session, user):
         if i == 2:
             is_deleted = True
         # Create workflow
-        new_workflow = Workflow(
-            org_id = user.org_id,
-            org_unit_id = user.org_unit_id,
-            name = f"Test Workflow - {i}",
-            description = f"Test Workflow Description - {i}",
-            created_by = user.user_id,
-            is_deleted = is_deleted
-        )
+        new_workflow = workflow_factory(name=f"Test Workflow - {i}", description=f"Test Workflow Description - {i}", is_deleted=is_deleted)
 
         created = repo.create_new_workflow(new_workflow)
 
@@ -140,16 +108,10 @@ def test_list_all_workflows_returns_active_workflows(db_session, user):
     assert len(workflow_list) == 2
 
 
-def test_get_workflow_by_name_and_org_unit_return_workflow(db_session, user):
+def test_get_workflow_by_name_and_org_unit_return_workflow(db_session, workflow_factory):
 
     # Create workflow
-    new_workflow = Workflow(
-        org_id = user.org_id,
-        org_unit_id = user.org_unit_id,
-        name = "Test Workflow",
-        description = "Test Workflow Description",
-        created_by = user.user_id
-    )
+    new_workflow = workflow_factory()
 
     repo = WorkflowRepository(db_session)
     created = repo.create_new_workflow(new_workflow)
@@ -163,16 +125,10 @@ def test_get_workflow_by_name_and_org_unit_return_workflow(db_session, user):
     assert workflow_id == returned_workflow.id
 
 
-def test_get_workflow_by_name_and_org_unit_returns_None(db_session, user):
+def test_get_workflow_by_name_and_org_unit_returns_None(db_session, workflow_factory):
 
     # Create workflow
-    new_workflow = Workflow(
-        org_id = user.org_id,
-        org_unit_id = user.org_unit_id,
-        name = "Test Workflow",
-        description = "Test Workflow Description",
-        created_by = user.user_id
-    )
+    new_workflow = workflow_factory()
 
     repo = WorkflowRepository(db_session)
     created = repo.create_new_workflow(new_workflow)
@@ -186,17 +142,10 @@ def test_get_workflow_by_name_and_org_unit_returns_None(db_session, user):
     assert returned_workflow is None
 
 
-def test_get_workflow_by_name_and_org_unit_fetch_deleted_workflow_returns_None(db_session, user):
+def test_get_workflow_by_name_and_org_unit_fetch_deleted_workflow_returns_None(db_session, workflow_factory):
 
     # Create workflow
-    new_workflow = Workflow(
-        org_id = user.org_id,
-        org_unit_id = user.org_unit_id,
-        name = "Test Workflow",
-        description = "Test Workflow Description",
-        created_by = user.user_id,
-        is_deleted=True
-    )
+    new_workflow = workflow_factory(is_deleted=True)
 
     repo = WorkflowRepository(db_session)
     created = repo.create_new_workflow(new_workflow)
