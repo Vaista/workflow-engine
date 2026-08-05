@@ -2,13 +2,26 @@ from fastapi import APIRouter, Depends, status
 
 
 from app.services.workflow_service import WorkflowService
-from app.schemas.workflows import WorkflowResponse, WorkflowCreate
+from app.schemas.workflows import WorkflowResponse, WorkflowCreate, WorkflowFetch
 from app.schemas.auth import CurrentUser
 from app.api.deps import get_current_user
 from app.provider.services import get_workflow_service
 
 
 router = APIRouter(prefix="/workflows", tags=["Workflows"])
+
+
+
+@router.post(
+    "/search",
+    status_code=status.HTTP_200_OK
+)
+async def fetch_workflows(
+    workflow: WorkflowFetch,
+    workflow_service: WorkflowService = Depends(get_workflow_service)
+):
+    
+    return workflow_service.fetch_workflow(workflow)
 
 
 @router.post(

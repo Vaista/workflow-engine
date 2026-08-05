@@ -29,6 +29,14 @@ class WorkflowRegion(Base):
     workflow_id: Mapped[int] = mapped_column(ForeignKey("workflows.id"))
     region_id: Mapped[int] = mapped_column(ForeignKey("regions.region_id"))
 
+    __table_args__ = (
+            UniqueConstraint(
+                "workflow_id",
+                "region_id",
+                name="uq_workflow_region_ids",
+            ),
+        )
+
 
 class WorkflowStep(Base):
     __tablename__ = "workflow_steps"

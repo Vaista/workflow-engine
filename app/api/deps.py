@@ -16,8 +16,11 @@ async def get_current_user() -> CurrentUser:
     # Placeholder for authentication logic
     return CurrentUser(
         user_id=UUID("123e4567-e89b-12d3-a456-426614174000"),
+        org_id=1,
         org_unit_id=1,
         name="John Doe",
         email="john.doe@example.com",
-        is_active=True
+        is_active=True,
+        roles=[],
+        permissions=[]
     )

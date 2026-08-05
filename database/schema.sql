@@ -98,11 +98,13 @@ CREATE TABLE workflow_steps (
     step_description varchar(255) DEFAULT NULL,
     step_config jsonb,
     CONSTRAINT uq_workflow_step_number UNIQUE (workflow_id, step_number)
+);
 
 CREATE TABLE workflow_regions (
     id SERIAL PRIMARY KEY NOT NULL,
     workflow_id INT REFERENCES workflows(id),
     region_id INT REFERENCES regions(region_id)
+    CONSTRAINT uq_workflow_region_ids UNIQUE (workflow_id, region_id)
 );
 
 CREATE TABLE workflow_runs (

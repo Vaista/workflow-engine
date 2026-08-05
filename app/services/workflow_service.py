@@ -1,9 +1,8 @@
-from fastapi import Depends
 from sqlalchemy.orm import Session
 
 from app.repositories.workflow_repository import WorkflowRepository, WorkflowRegionRepository
 from app.repositories.region_repository import RegionRepository
-from app.schemas.workflows import WorkflowCreate
+from app.schemas.workflows import WorkflowCreate, WorkflowFetch
 from app.schemas.auth import CurrentUser
 from app.models.workflow import Workflow
 from app.exceptions.exceptions.workflows import WorkflowAlreadyExists
@@ -18,9 +17,9 @@ class WorkflowService:
             session: Session
         ):
         
-        self.workflow = workflow_repository
-        self.regions = region_repository
-        self.workflow_regions = workflow_region_repository
+        self.workflow_repository = workflow_repository
+        self.region_repository = region_repository
+        self.workflow_region_repository = workflow_region_repository
         self.session = session
 
     def create_workflow(self, workflow: WorkflowCreate, current_user: CurrentUser):
@@ -28,7 +27,7 @@ class WorkflowService:
 
         try:
             # Check if the workflow already exists
-            existing_workflow = self.workflow.get_workflow_by_name_and_org_unit(workflow.name, current_user.org_unit_id)
+            existing_workflow = self.workflow_repository.get_workflow_by_name_and_org_unit(workflow.name, current_user.org_unit_id)
 
             if existing_workflow:
                 raise WorkflowAlreadyExists()
@@ -43,15 +42,15 @@ class WorkflowService:
             )
 
             # Create the workflow
-            created_workflow = self.workflow.create_new_workflow(new_workflow)
+            created_workflow = self.workflow_repository.create_new_workflow(new_workflow)
 
             # Add workflow regions
             region_codes = workflow.region_codes
             
-            regions = self.regions.get_by_codes(region_codes)
+            regions = self.region_repository.get_by_codes(region_codes)
 
             # Create workflow regions
-            self.workflow_regions.create_workflow_region_mapping(created_workflow, regions)
+            self.workflow_region_repository.create_workflow_region_mapping(created_workflow, regions)
 
             self.session.commit()
 
@@ -62,3 +61,18 @@ class WorkflowService:
         except Exception:
             self.session.rollback()
             raise
+
+
+# class WorkflowFetch(BaseModel):
+#     org_id: int
+#     org_unit_id: int | None = None
+#     name: str
+#     region: list[str] = None
+#     created_by: UUID | None = None
+#     order_by: list[OrderBy] = []
+#     limit: int
+#     offset: int
+    def fetch_workflow(self, workflow: WorkflowFetch):
+
+        # Fetch workflow from workflow repo
+        return self.workflow_repository.fetch_workflow_by_search_criteria(workflow)
