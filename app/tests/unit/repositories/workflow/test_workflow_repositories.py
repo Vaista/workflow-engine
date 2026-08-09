@@ -1,7 +1,5 @@
-from app.repositories.workflow_repository import WorkflowRepository, WorkflowRegionRepository
-from app.models.workflow import Workflow
-
-from sqlalchemy import select
+from app.repositories.workflow_repository import WorkflowRepository
+from app.schemas.workflows import WorkflowFetch
 
 
 def test_create_workflow_generates_id(db_session, workflow_factory):
@@ -155,3 +153,104 @@ def test_get_workflow_by_name_and_org_unit_fetch_deleted_workflow_returns_None(d
 
     # Assert
     assert returned_workflow is None
+
+
+def test_fetch_workflow_by_search_criteria_returns_list(db_session, workflow_factory, current_user):
+
+    repo = WorkflowRepository(db_session)
+
+    # Create list of workflows
+    for i in range(1, 21):
+        is_deleted = False
+        if i == 12 or i == 18:
+            is_deleted = True
+        new_workflow = workflow_factory(name=f'Workflow - {i}', is_deleted=is_deleted)
+
+    search_criteria = WorkflowFetch(
+        org_id= current_user.org_id,
+        name= "Workflow"
+    )
+
+    # Act
+    fetched_workflows = repo.fetch_workflow_by_search_criteria(search_criteria)
+
+    assert len(fetched_workflows) == 18
+
+
+def test_fetch_workflow_by_search_criteria_returns_empty_list(db_session, current_user):
+
+    repo = WorkflowRepository(db_session)
+
+    search_criteria = WorkflowFetch(
+        org_id= current_user.org_id,
+        name= "Workflow"
+    )
+
+    # Act
+    fetched_workflows = repo.fetch_workflow_by_search_criteria(search_criteria)
+
+    assert len(fetched_workflows) == 0
+
+
+def test_fetch_workflow_by_search_criteria_returns_list(db_session, workflow_factory, current_user):
+
+    repo = WorkflowRepository(db_session)
+
+    # Create list of workflows
+    for i in range(1, 50):
+        new_workflow = workflow_factory(name=f'Workflow - {i}')
+
+    search_criteria = WorkflowFetch(
+        org_id= current_user.org_id,
+        name= "Workflow",
+        offset=0,
+        limit=25
+    )
+
+    # Act
+    fetched_workflows = repo.fetch_workflow_by_search_criteria(search_criteria)
+
+    assert len(fetched_workflows) == 25
+
+
+def test_fetch_workflow_by_search_criteria_correct_region(db_session, workflow_factory, region_factory, current_user):
+
+    repo = WorkflowRepository(db_session)
+
+    new_region = region_factory(name='Region 1', code='R1')
+    new_workflow = workflow_factory(name='Test Workflow', regions=[new_region])
+
+    search_criteria = WorkflowFetch(
+        org_id= current_user.org_id,
+        name= "Test Workflow",
+        region=['R1'],
+        offset=0,
+        limit=25
+    )
+
+    fetched_workflows = repo.fetch_workflow_by_search_criteria(search_criteria)
+
+    assert len(fetched_workflows) == 1
+
+
+
+
+def test_fetch_workflow_by_search_criteria_incorrect_region(db_session, workflow_factory, region_factory, current_user):
+
+    
+    repo = WorkflowRepository(db_session)
+
+    new_region = region_factory(name='Region 1', code='R1')
+    new_workflow = workflow_factory(name='Test Workflow', regions=[new_region])
+
+    search_criteria = WorkflowFetch(
+        org_id= current_user.org_id,
+        name= "Test Workflow",
+        region=['R2'],
+        offset=0,
+        limit=25
+    )
+
+    fetched_workflows = repo.fetch_workflow_by_search_criteria(search_criteria)
+
+    assert len(fetched_workflows) == 0

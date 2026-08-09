@@ -55,7 +55,7 @@ class WorkflowRepository:
             query = query.where(Workflow.org_unit_id == workflow.org_unit_id)
 
         if workflow.name:
-            query = query.where(Workflow.name == workflow.name)
+            query = query.where(Workflow.name.ilike(f"%{workflow.name}%"))
 
         if workflow.created_by:
             query = query.where(Workflow.created_by == workflow.created_by)

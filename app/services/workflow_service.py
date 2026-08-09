@@ -63,15 +63,6 @@ class WorkflowService:
             raise
 
 
-# class WorkflowFetch(BaseModel):
-#     org_id: int
-#     org_unit_id: int | None = None
-#     name: str
-#     region: list[str] = None
-#     created_by: UUID | None = None
-#     order_by: list[OrderBy] = []
-#     limit: int
-#     offset: int
     def fetch_workflow(self, workflow: WorkflowFetch):
 
         # Fetch workflow from workflow repo
