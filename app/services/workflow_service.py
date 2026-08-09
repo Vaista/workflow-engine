@@ -2,7 +2,7 @@ from sqlalchemy.orm import Session
 
 from app.repositories.workflow_repository import WorkflowRepository, WorkflowRegionRepository
 from app.repositories.region_repository import RegionRepository
-from app.schemas.workflows import WorkflowCreate, WorkflowFetch
+from app.schemas.workflows import WorkflowCreate, WorkflowFetch, FetchWorkflowResponse
 from app.schemas.auth import CurrentUser
 from app.models.workflow import Workflow
 from app.exceptions.exceptions.workflows import WorkflowAlreadyExists
@@ -65,5 +65,21 @@ class WorkflowService:
 
     def fetch_workflow(self, workflow: WorkflowFetch):
 
-        # Fetch workflow from workflow repo
-        return self.workflow_repository.fetch_workflow_by_search_criteria(workflow)
+        rows = self.workflow_repository.fetch_workflow_by_search_criteria(workflow)
+
+        return [
+            FetchWorkflowResponse(
+                id=workflow.id,
+                org_id=workflow.org_id,
+                org_name=org_name,
+                org_unit_id=workflow.org_unit_id,
+                org_unit_name=org_unit_name,
+                name=workflow.name,
+                description=workflow.description,
+                is_active=workflow.is_active,
+                created_on=workflow.created_on,
+                created_by=workflow.created_by,
+                created_by_name=created_by_name,
+            )
+            for workflow, created_by_name, org_name, org_unit_name in rows
+        ]

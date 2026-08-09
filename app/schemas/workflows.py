@@ -23,6 +23,21 @@ class WorkflowFetch(BaseModel):
     offset: int = 0
 
 
+class FetchWorkflowResponse(BaseModel):
+    id: int
+    org_id: int | None = None
+    org_name: str
+    org_unit_id: int | None = None
+    org_unit_name: str | None = None
+    name: str | None = None
+    description: str | None
+    created_on: datetime | None = None
+    created_by_name: str | None = None
+    is_active: bool
+
+    model_config = ConfigDict(from_attributes=True)
+
+
 class WorkflowResponse(BaseModel):
     name: str
     description: str | None

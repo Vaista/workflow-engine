@@ -2,6 +2,8 @@ from sqlalchemy.orm import Session
 from sqlalchemy import select
 
 from app.schemas.workflows import WorkflowFetch
+from app.models.organization import Organizations, OrganizationUnits
+from app.models.user import Users
 from app.models.workflow import Workflow, WorkflowRegion
 from app.models.region import Regions
 from app.utils.pagination import SortField, SortOrder
@@ -48,8 +50,15 @@ class WorkflowRepository:
         return result
 
     def fetch_workflow_by_search_criteria(self, workflow: WorkflowFetch):
-        # Fetch workflow by search criteria
-        query = select(Workflow).distinct().where(Workflow.org_id == workflow.org_id)
+
+        query = select(
+            Workflow,
+            Users.name.label("created_by_name"),
+            Organizations.name.label("org_name"),
+            OrganizationUnits.name.label("org_unit_name"),
+        ).distinct()
+
+        query = query.where(Workflow.org_id == workflow.org_id)
 
         if workflow.org_unit_id:
             query = query.where(Workflow.org_unit_id == workflow.org_unit_id)
@@ -61,6 +70,13 @@ class WorkflowRepository:
             query = query.where(Workflow.created_by == workflow.created_by)
 
         query = query.where(Workflow.is_deleted.is_(False))
+
+        query = (
+            query
+            .join(Organizations, Organizations.org_id == Workflow.org_id)
+            .join(OrganizationUnits, OrganizationUnits.org_unit_id == Workflow.org_unit_id)
+            .join(Users, Users.user_id == Workflow.created_by)
+        )
 
         if workflow.region:
             query = (
@@ -88,7 +104,12 @@ class WorkflowRepository:
         # Pagination
         query = query.offset(workflow.offset).limit(workflow.limit)
 
-        return self.session.execute(query).scalars().all()
+        print(query)
+
+        result = self.session.execute(query).all()
+
+        return result
+
 
     def delete_workflow(self, workflow_id: int):
         pass

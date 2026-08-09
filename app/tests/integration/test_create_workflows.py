@@ -1,12 +1,12 @@
 from sqlalchemy import select
 
 from app.models.workflow import Workflow
-from app.tests.builders.workflow_payload import workflow_payload
+from app.tests.builders.workflow_payload import create_workflow_payload
 
 
 def test_create_workflow_success(db_session, client):
 
-    payload = workflow_payload()
+    payload = create_workflow_payload()
 
     response = client.post("/workflows/", json=payload)
 
@@ -24,7 +24,7 @@ def test_create_workflow_success(db_session, client):
 
 def test_create_workflow_missing_regions(client):
 
-    payload = workflow_payload(region_codes=[])
+    payload = create_workflow_payload(region_codes=[])
 
     response = client.post("/workflows/", json=payload)
 
@@ -33,7 +33,7 @@ def test_create_workflow_missing_regions(client):
 
 def test_create_workflow_duplicate_workflow(client, db_session, workflow_factory):
 
-    payload = workflow_payload(name="Test Workflow")
+    payload = create_workflow_payload(name="Test Workflow")
 
     new_workflow = workflow_factory(name="Test Workflow", description="Test Workflow Description")
 
