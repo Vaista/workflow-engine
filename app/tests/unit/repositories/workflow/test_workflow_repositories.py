@@ -283,3 +283,38 @@ def test_delete_workflow_nonexistent_workflow_raises_exception(db_session, curre
         repo.delete(99999, current_user.user_id)
 
     assert exc_info.type == WorkflowNotFound
+
+
+def test_delete_workflow_already_deleted_workflow_raises_exception(db_session, workflow_factory, current_user):
+
+    repo = WorkflowRepository(db_session)
+
+    new_workflow = workflow_factory(name='Workflow to Delete', is_deleted=True)
+
+    created_workflow = repo.create_new_workflow(new_workflow)
+
+    workflow_id = created_workflow.id
+
+    # Act & Assert
+    with pytest.raises(WorkflowNotFound) as exc_info:
+        repo.delete(workflow_id, current_user.user_id)
+
+    assert exc_info.type == WorkflowNotFound
+
+
+def test_update_workflow_updates_workflow(db_session, workflow_factory, current_user):
+
+    repo = WorkflowRepository(db_session)
+
+    new_workflow = workflow_factory(name='Workflow to Update')
+
+    new_workflow.name = 'Updated Workflow Name'
+    new_workflow.description = 'Updated Description'
+    new_workflow.updated_by = current_user.user_id
+
+    # Act
+    updated_workflow = repo.update(new_workflow)
+
+    # Assert
+    assert updated_workflow.name == 'Updated Workflow Name'
+    assert updated_workflow.description == 'Updated Description'

@@ -50,6 +50,13 @@ class FakeWorkflowService:
 
         return self.result
 
+    def update_workflow(self, workflow_id, workflow, current_user):
+
+        if self.exception:
+            raise self.exception
+
+        return self.result
+
 
 @pytest.fixture
 def fake_workflow_service():

@@ -1,6 +1,6 @@
 from app.exceptions.exceptions.workflows import WorkflowAlreadyExists, WorkflowNotFound
 from app.exceptions.exceptions.regions import InvalidRegionCodeException
-from app.tests.builders.responses import workflow_response, fetch_workflow_response
+from app.tests.builders.responses import update_workflow_response, workflow_response, fetch_workflow_response
 from app.tests.builders.workflow_payload import create_workflow_payload, search_workflow_payload
 
 
@@ -105,6 +105,41 @@ def test_delete_workflow_returns_404_not_found(fake_workflow_service, mock_clien
     fake_workflow_service.exception = WorkflowNotFound()
 
     response = mock_client.delete(f"/workflows/{workflow_id}")
+
+    assert response.status_code == 404
+
+    assert response.json() == {
+        "error": {
+            "code": "WORKFLOW_NOT_FOUND",
+            "message": "Workflow not found."
+        }
+    }
+
+
+def test_update_workflow_returns_200_success(fake_workflow_service, mock_client):
+
+    workflow_id = 1
+
+    payload = create_workflow_payload()
+
+    response = update_workflow_response(name=payload['name'], description=payload['description'], region_codes=payload['region_codes'])
+
+    fake_workflow_service.result = response
+
+    response = mock_client.post(f"/workflows/{workflow_id}/update", json=payload)
+
+    assert response.status_code == 200
+
+
+def test_update_workflow_returns_404_not_found(fake_workflow_service, mock_client):
+
+    workflow_id = 99999
+
+    payload = create_workflow_payload()
+
+    fake_workflow_service.exception = WorkflowNotFound()
+
+    response = mock_client.post(f"/workflows/{workflow_id}/update", json=payload)
 
     assert response.status_code == 404
 

@@ -87,3 +87,39 @@ def test_delete_workflow_not_found(client):
 
     assert response.status_code == 404
     assert response.json()['error']['code'] == "WORKFLOW_NOT_FOUND"
+
+
+def test_update_workflow_success(client, db_session, workflow_factory):
+
+    # Create a workflow to update
+    new_workflow = workflow_factory(name="Workflow to Update", description="Workflow Description")
+    db_session.add(new_workflow)
+    db_session.commit()
+    db_session.refresh(new_workflow)
+
+    workflow_id = new_workflow.id
+
+    payload = create_workflow_payload(name="Updated Workflow Name", description="Updated Description")
+
+    response = client.post(f"/workflows/{workflow_id}/update", json=payload)
+
+    assert response.status_code == 200
+    assert response.json()['name'] == "Updated Workflow Name"
+    assert response.json()['description'] == "Updated Description"
+
+    # Verify that the workflow is updated in the database
+    updated_workflow = db_session.get(Workflow, workflow_id)
+    assert updated_workflow.name == "Updated Workflow Name"
+    assert updated_workflow.description == "Updated Description"
+
+
+def test_update_workflow_not_found(client):
+
+    workflow_id = 99999  # Assuming this ID does not exist or is already deleted
+
+    payload = create_workflow_payload(name="Updated Workflow Name", description="Updated Description")
+
+    response = client.post(f"/workflows/{workflow_id}/update", json=payload)
+
+    assert response.status_code == 404
+    assert response.json()['error']['code'] == "WORKFLOW_NOT_FOUND"

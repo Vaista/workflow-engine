@@ -35,8 +35,11 @@ class WorkflowRepository:
         result = self.session.execute(stmt).scalars().all()
         return result
 
-    def update(self):
-        pass
+    def update(self, workflow: Workflow):
+        # Update an existing workflow
+        self.session.merge(workflow)
+        self.session.flush()
+        return workflow
 
     def get_workflow_by_name_and_org_unit(self, name: str, org_unit_id: int):
         "Retrieve the workflow by name and org_unit_id"
@@ -144,4 +147,15 @@ class WorkflowRegionRepository:
             workflow_region = WorkflowRegion(workflow_id = workflow.id, region_id=region.region_id)
             self.session.add(workflow_region)
         
+        self.session.flush()
+
+    def update_workflow_region_mapping(self, workflow: Workflow, regions: list[Regions]):
+        # Delete existing mappings
+        self.session.query(WorkflowRegion).filter(WorkflowRegion.workflow_id == workflow.id).delete()
+
+        # Create new mappings
+        for region in regions:
+            workflow_region = WorkflowRegion(workflow_id=workflow.id, region_id=region.region_id)
+            self.session.add(workflow_region)
+
         self.session.flush()

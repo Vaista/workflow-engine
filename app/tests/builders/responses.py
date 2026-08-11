@@ -1,4 +1,4 @@
-from app.schemas.workflows import WorkflowResponse, FetchWorkflowResponse
+from app.schemas.workflows import WorkflowResponse, FetchWorkflowResponse, WorkflowUpdateResponse
 
 from datetime import datetime
 from uuid import UUID
@@ -18,6 +18,19 @@ def workflow_response(**kwargs):
         update=kwargs
     )
 
+def update_workflow_response(**kwargs):
+
+    response = WorkflowUpdateResponse(
+        name="Leave Approval",
+        description="Leave workflow",
+        is_active=True,
+        updated_on=datetime.now(),
+        region_codes=["APAC"],
+    )
+
+    return response.model_copy(
+        update=kwargs
+    )
 
 def fetch_workflow_response(**kwargs):
 

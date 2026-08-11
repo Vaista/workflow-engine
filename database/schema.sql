@@ -85,6 +85,8 @@ CREATE TABLE workflows (
     is_active BOOLEAN DEFAULT false,
     created_by UUID REFERENCES users(user_id),
     created_on timestamp DEFAULT current_timestamp,
+    updated_by UUID REFERENCES users(user_id) default NULL,
+    updated_on timestamp DEFAULT NULL,
     is_deleted BOOLEAN DEFAULT false,
     deleted_at timestamp,
     deleted_by UUID REFERENCES users(user_id)

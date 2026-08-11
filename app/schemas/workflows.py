@@ -46,3 +46,13 @@ class WorkflowResponse(BaseModel):
     region_codes: list[str]
 
     model_config = ConfigDict(from_attributes=True)
+
+
+class WorkflowUpdateResponse(BaseModel):
+    name: str
+    description: str | None
+    is_active: bool
+    updated_on: datetime
+    region_codes: list[str]
+
+    model_config = ConfigDict(from_attributes=True)

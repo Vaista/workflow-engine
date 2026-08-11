@@ -38,3 +38,45 @@ def test_create_workflow_region_mapping_return_workflow_list(db_session, workflo
 
     # Assert
     assert len(mapped_regions) == 3
+
+
+def test_update_workflow_region_mapping_removes_old_and_adds_new(db_session, workflow_factory):
+
+    workflow = workflow_factory()
+
+    # Arrange
+    region_list = [('Region 1', 'R1'), ('Region 2', 'R2')]
+    created_region_list = []
+
+    for reg in region_list:
+
+        created_region = Regions(name=reg[0], code=reg[1])
+
+        db_session.add(created_region)
+        db_session.commit()
+        db_session.refresh(created_region)
+
+        created_region_list.append(created_region)
+    
+    repo = WorkflowRegionRepository(db_session)
+    repo.create_workflow_region_mapping(workflow, created_region_list)
+
+    # Act
+    new_region = Regions(name='Region 3', code='R3')
+    db_session.add(new_region)
+    db_session.commit()
+    db_session.refresh(new_region)
+
+    updated_regions = [created_region_list[0], new_region]
+    repo.update_workflow_region_mapping(workflow, updated_regions)
+
+    stmt = (
+            select(WorkflowRegion)
+            .where(
+                WorkflowRegion.workflow_id == workflow.id
+            )
+    )
+    mapped_regions = db_session.execute(stmt).scalars().all()
+
+    # Assert
+    assert len(mapped_regions) == 2

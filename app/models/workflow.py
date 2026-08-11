@@ -17,6 +17,8 @@ class Workflow(Base):
     is_active: Mapped[bool] = mapped_column(server_default=sql.expression.false())
     created_by: Mapped[UUID] = mapped_column(ForeignKey("users.user_id"))
     created_on: Mapped[datetime] = mapped_column(server_default=func.now())
+    updated_by: Mapped[UUID | None] = mapped_column(ForeignKey("users.user_id"))
+    updated_on: Mapped[datetime | None] = mapped_column(DateTime, onupdate=func.now())
     is_deleted: Mapped[bool] = mapped_column(server_default=sql.expression.false())
     deleted_at: Mapped[datetime | None] = mapped_column(DateTime)
     deleted_by: Mapped[UUID | None] = mapped_column(ForeignKey("users.user_id"))

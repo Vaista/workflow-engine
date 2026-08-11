@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, status
 
 
 from app.services.workflow_service import WorkflowService
-from app.schemas.workflows import WorkflowResponse, WorkflowCreate, WorkflowFetch, FetchWorkflowResponse
+from app.schemas.workflows import WorkflowResponse, WorkflowCreate, WorkflowFetch, FetchWorkflowResponse, WorkflowUpdateResponse
 from app.schemas.auth import CurrentUser
 from app.api.deps import get_current_user
 from app.provider.services import get_workflow_service
@@ -43,6 +43,30 @@ async def create_workflow(
         description=created_workflow.description,
         is_active=created_workflow.is_active,
         created_on=created_workflow.created_on,
+        region_codes=workflow.region_codes
+    )
+
+    return response
+
+
+@router.post(
+    "/{workflow_id}/update",
+    response_model=WorkflowUpdateResponse,
+    status_code=status.HTTP_200_OK
+)
+async def update_workflow(
+    workflow_id: int,
+    workflow: WorkflowCreate,
+    current_user: CurrentUser = Depends(get_current_user),
+    workflow_service: WorkflowService = Depends(get_workflow_service)
+):
+    updated_workflow = workflow_service.update_workflow(workflow_id, workflow, current_user)
+
+    response = WorkflowUpdateResponse(
+        name=updated_workflow.name,
+        description=updated_workflow.description,
+        is_active=updated_workflow.is_active,
+        updated_on=updated_workflow.updated_on,
         region_codes=workflow.region_codes
     )
 

@@ -5,7 +5,7 @@ from app.repositories.region_repository import RegionRepository
 from app.schemas.workflows import WorkflowCreate, WorkflowFetch, FetchWorkflowResponse
 from app.schemas.auth import CurrentUser
 from app.models.workflow import Workflow
-from app.exceptions.exceptions.workflows import WorkflowAlreadyExists
+from app.exceptions.exceptions.workflows import WorkflowAlreadyExists, WorkflowNotFound
 
 
 class WorkflowService:
@@ -62,6 +62,37 @@ class WorkflowService:
             self.session.rollback()
             raise
 
+
+    def update_workflow(self, workflow_id: int, workflow: WorkflowCreate, current_user: CurrentUser):
+        """Update an existing workflow"""
+
+        existing_workflow = self.workflow_repository.get_workflow_by_id(workflow_id)
+
+        if not existing_workflow:
+            raise WorkflowNotFound()
+
+        # Update the workflow details
+        existing_workflow.name = workflow.name
+        existing_workflow.description = workflow.description
+        existing_workflow.updated_by = current_user.user_id
+
+        # Update the workflow
+        updated_workflow = self.workflow_repository.update(existing_workflow)
+
+        # Update workflow regions
+        region_codes = workflow.region_codes
+        
+        regions = self.region_repository.get_by_codes(region_codes)
+
+        # Update workflow regions
+        self.workflow_region_repository.update_workflow_region_mapping(updated_workflow, regions)
+
+        self.session.commit()
+
+        self.session.refresh(updated_workflow)
+
+        return updated_workflow
+    
 
     def fetch_workflow(self, workflow: WorkflowFetch):
 

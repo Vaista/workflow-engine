@@ -256,3 +256,65 @@ def test_delete_workflow_not_found_exception(
         mock_workflow_service.delete_workflow(workflow_id, current_user)
 
     assert exc_info.type == WorkflowNotFound
+
+
+def test_update_workflow_success(
+    mock_workflow_service,
+    mock_workflow_repo,
+    mock_region_repo,
+    mock_workflow_region_repo,
+):
+    workflow_id = 1
+    user_id = str(uuid.uuid4())
+
+    current_user = CurrentUser(
+        user_id=user_id,
+        org_id=123,
+        org_unit_id=123456,
+        name="Vaibhav",
+        email="test@test.com",
+        is_active=True,
+        roles=[],
+        permissions=[]
+    )
+
+    new_workflow = Workflow(
+        id=workflow_id,
+        org_id=123,
+        org_unit_id=123456,
+        name='Test Workflow',
+        description='Test Description',
+        created_by=user_id
+    )
+
+    workflow_to_update = WorkflowCreate(
+        name='Updated Workflow',
+        description='Updated Description',
+        region_codes=['IND', 'UK']
+    )
+
+    updated_workflow = Workflow(
+        id=workflow_id,
+        org_id=123,
+        org_unit_id=123456,
+        name='Updated Workflow',
+        description='Updated Description',
+        updated_by=user_id
+    )
+
+    mock_workflow_repo.get_workflow_by_id.return_value = new_workflow
+
+    mock_workflow_repo.update.return_value = updated_workflow
+
+    mock_region_repo.get_by_codes.return_value = [
+        Mock(id=1),
+        Mock(id=2)
+    ]
+
+    mock_workflow_region_repo.update_workflow_region_mapping.return_value = None
+
+    result = mock_workflow_service.update_workflow(workflow_id, workflow_to_update, current_user)
+
+    assert result.name == 'Updated Workflow'
+    assert result.description == 'Updated Description'
+    assert result.id == workflow_id
