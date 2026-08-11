@@ -45,3 +45,45 @@ def test_create_workflow_duplicate_workflow(client, db_session, workflow_factory
     response = client.post("/workflows/", json=payload)
 
     assert response.status_code == 409
+
+
+def test_create_workflow_invalid_regions(client):
+
+    payload = create_workflow_payload(region_codes=["INVALID_REGION"])
+
+    response = client.post("/workflows/", json=payload)
+
+    assert response.status_code == 409
+
+
+def test_delete_workflow_success(client, db_session, workflow_factory):
+
+    # Create a workflow to delete
+    new_workflow = workflow_factory(name="Workflow to Delete", description="Workflow Description")
+    db_session.add(new_workflow)
+    db_session.commit()
+    db_session.refresh(new_workflow)
+
+    workflow_id = new_workflow.id
+
+    response = client.delete(f"/workflows/{workflow_id}")
+
+    assert response.status_code == 200
+    assert response.json() == {
+        "status": "success",
+        "message": f"Workflow with ID {workflow_id} has been deleted."
+    }
+
+    # Verify that the workflow is marked as deleted in the database
+    deleted_workflow = db_session.get(Workflow, workflow_id)
+    assert deleted_workflow.is_deleted is True
+
+
+def test_delete_workflow_not_found(client):
+
+    workflow_id = 99999  # Assuming this ID does not exist or is already deleted
+
+    response = client.delete(f"/workflows/{workflow_id}")
+
+    assert response.status_code == 404
+    assert response.json()['error']['code'] == "WORKFLOW_NOT_FOUND"

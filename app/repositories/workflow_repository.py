@@ -1,6 +1,8 @@
 from sqlalchemy.orm import Session
-from sqlalchemy import select
+from sqlalchemy import func, select
+from uuid import UUID
 
+from app.exceptions.exceptions.workflows import WorkflowNotFound
 from app.schemas.workflows import WorkflowFetch
 from app.models.organization import Organizations, OrganizationUnits
 from app.models.user import Users
@@ -104,15 +106,30 @@ class WorkflowRepository:
         # Pagination
         query = query.offset(workflow.offset).limit(workflow.limit)
 
-        print(query)
-
         result = self.session.execute(query).all()
 
         return result
 
 
-    def delete_workflow(self, workflow_id: int):
-        pass
+    def delete(self, workflow_id: int, user_id: UUID):
+
+        stmt = (
+            select(Workflow)
+            .where(Workflow.id == workflow_id, Workflow.is_deleted == False)
+        )
+
+        result = self.session.execute(stmt).scalar_one_or_none()
+
+        if result:
+            result.is_deleted = True
+            result.deleted_at = func.now()
+            result.deleted_by = user_id 
+            self.session.commit()
+
+            return result
+
+        else:
+            raise WorkflowNotFound()
 
 
 class WorkflowRegionRepository:

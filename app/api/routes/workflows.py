@@ -47,3 +47,17 @@ async def create_workflow(
     )
 
     return response
+
+
+@router.delete(
+    "/{workflow_id}",
+    status_code=status.HTTP_200_OK
+)
+async def delete_workflow(
+    workflow_id: int,
+    current_user: CurrentUser = Depends(get_current_user),
+    workflow_service: WorkflowService = Depends(get_workflow_service)
+):
+    result = workflow_service.delete_workflow(workflow_id, current_user)
+
+    return result

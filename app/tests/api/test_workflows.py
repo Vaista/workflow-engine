@@ -1,4 +1,4 @@
-from app.exceptions.exceptions.workflows import WorkflowAlreadyExists
+from app.exceptions.exceptions.workflows import WorkflowAlreadyExists, WorkflowNotFound
 from app.exceptions.exceptions.regions import InvalidRegionCodeException
 from app.tests.builders.responses import workflow_response, fetch_workflow_response
 from app.tests.builders.workflow_payload import create_workflow_payload, search_workflow_payload
@@ -85,3 +85,32 @@ def test_fetch_workflow_returns_ValidationError(fake_workflow_service, mock_clie
     response = mock_client.post("/workflows/search", json=payload)
 
     assert response.status_code == 422
+
+
+def test_delete_workflow_returns_200_success(fake_workflow_service, mock_client):
+
+    workflow_id = 1
+
+    fake_workflow_service.result = {"status": "success", "message": f"Workflow with ID {workflow_id} has been deleted."}
+
+    response = mock_client.delete(f"/workflows/{workflow_id}")
+
+    assert response.status_code == 200
+
+
+def test_delete_workflow_returns_404_not_found(fake_workflow_service, mock_client):
+
+    workflow_id = 99999
+
+    fake_workflow_service.exception = WorkflowNotFound()
+
+    response = mock_client.delete(f"/workflows/{workflow_id}")
+
+    assert response.status_code == 404
+
+    assert response.json() == {
+        "error": {
+            "code": "WORKFLOW_NOT_FOUND",
+            "message": "Workflow not found."
+        }
+    }

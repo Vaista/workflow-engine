@@ -83,3 +83,11 @@ class WorkflowService:
             )
             for workflow, created_by_name, org_name, org_unit_name in rows
         ]
+
+
+    def delete_workflow(self, workflow_id: int, current_user: CurrentUser):
+        """Delete a workflow by its ID"""
+
+        self.workflow_repository.delete(workflow_id, current_user.user_id)
+
+        return {"status": "success", "message": f"Workflow with ID {workflow_id} has been deleted."}

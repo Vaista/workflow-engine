@@ -1,7 +1,7 @@
 from app.schemas.workflows import WorkflowCreate
 from app.schemas.auth import CurrentUser
 from app.models.workflow import Workflow
-from app.exceptions.exceptions.workflows import WorkflowAlreadyExists
+from app.exceptions.exceptions.workflows import WorkflowAlreadyExists, WorkflowNotFound
 from app.exceptions.exceptions.regions import InvalidRegionCodeException
 
 from unittest.mock import Mock
@@ -205,3 +205,54 @@ def test_create_workflow_SQLAlchemy_Exception(
         mock_workflow_service.create_workflow(workflow_to_create, current_user)
 
     mock_session.rollback.assert_called_once()
+
+
+def test_delete_workflow_success(
+    mock_workflow_service,
+    mock_workflow_repo
+):
+    workflow_id = 1
+    user_id = str(uuid.uuid4())
+
+    current_user = CurrentUser(
+        user_id=user_id,
+        org_id=123,
+        org_unit_id=123456,
+        name="Vaibhav",
+        email="test@test.com",
+        is_active=True,
+        roles=[],
+        permissions=[]
+    )
+
+    mock_workflow_repo.delete.return_value = None
+
+    result = mock_workflow_service.delete_workflow(workflow_id, current_user)
+
+    assert result == {"status": "success", "message": f"Workflow with ID {workflow_id} has been deleted."}
+
+
+def test_delete_workflow_not_found_exception(
+    mock_workflow_service,
+    mock_workflow_repo
+):
+    workflow_id = 99999
+    user_id = str(uuid.uuid4())
+
+    current_user = CurrentUser(
+        user_id=user_id,
+        org_id=123,
+        org_unit_id=123456,
+        name="Vaibhav",
+        email="test@test.com",
+        is_active=True,
+        roles=[],
+        permissions=[]
+    )
+
+    mock_workflow_repo.delete.side_effect = WorkflowNotFound()
+
+    with pytest.raises(WorkflowNotFound) as exc_info:
+        mock_workflow_service.delete_workflow(workflow_id, current_user)
+
+    assert exc_info.type == WorkflowNotFound

@@ -1,5 +1,8 @@
 from app.repositories.workflow_repository import WorkflowRepository
 from app.schemas.workflows import WorkflowFetch
+from app.exceptions.exceptions.workflows import WorkflowNotFound
+
+import pytest
 
 
 def test_create_workflow_generates_id(db_session, workflow_factory):
@@ -233,8 +236,6 @@ def test_fetch_workflow_by_search_criteria_correct_region(db_session, workflow_f
     assert len(fetched_workflows) == 1
 
 
-
-
 def test_fetch_workflow_by_search_criteria_incorrect_region(db_session, workflow_factory, region_factory, current_user):
 
     
@@ -254,3 +255,31 @@ def test_fetch_workflow_by_search_criteria_incorrect_region(db_session, workflow
     fetched_workflows = repo.fetch_workflow_by_search_criteria(search_criteria)
 
     assert len(fetched_workflows) == 0
+
+
+def test_delete_workflow_marks_workflow_as_deleted(db_session, workflow_factory, current_user):
+
+    repo = WorkflowRepository(db_session)
+
+    new_workflow = workflow_factory(name='Workflow to Delete')
+
+    created_workflow = repo.create_new_workflow(new_workflow)
+
+    workflow_id = created_workflow.id
+
+    # Act
+    deleted_workflow = repo.delete(workflow_id, current_user.user_id)
+
+    # Assert
+    assert deleted_workflow.is_deleted is True
+
+
+def test_delete_workflow_nonexistent_workflow_raises_exception(db_session, current_user):
+
+    repo = WorkflowRepository(db_session)
+
+    # Act & Assert
+    with pytest.raises(WorkflowNotFound) as exc_info:
+        repo.delete(99999, current_user.user_id)
+
+    assert exc_info.type == WorkflowNotFound

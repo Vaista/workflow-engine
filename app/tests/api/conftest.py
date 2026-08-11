@@ -43,6 +43,13 @@ class FakeWorkflowService:
 
         return self.result
 
+    def delete_workflow(self, workflow, current_user):
+
+        if self.exception:
+            raise self.exception
+
+        return self.result
+
 
 @pytest.fixture
 def fake_workflow_service():
