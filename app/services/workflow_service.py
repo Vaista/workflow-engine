@@ -66,42 +66,46 @@ class WorkflowService:
     def update_workflow(self, workflow_id: int, workflow: WorkflowCreate, current_user: CurrentUser):
         """Update an existing workflow"""
 
-        existing_workflow = self.workflow_repository.get_workflow_by_id(workflow_id)
+        try:
+            existing_workflow = self.workflow_repository.get_workflow_by_id(workflow_id)
 
-        if not existing_workflow:
-            raise WorkflowNotFound()
+            if not existing_workflow:
+                raise WorkflowNotFound()
 
-        # Update the workflow details
-        existing_workflow.name = workflow.name
-        existing_workflow.description = workflow.description
-        existing_workflow.updated_by = current_user.user_id
+            # Update the workflow details
+            existing_workflow.name = workflow.name
+            existing_workflow.description = workflow.description
+            existing_workflow.updated_by = current_user.user_id
 
-        # Update the workflow
-        updated_workflow = self.workflow_repository.update(existing_workflow)
+            # Update the workflow
+            updated_workflow = self.workflow_repository.update(existing_workflow)
 
-        # Update workflow regions
-        region_codes = workflow.region_codes
-        
-        regions = self.region_repository.get_by_codes(region_codes)
+            # Update workflow regions
+            region_codes = workflow.region_codes
+            
+            regions = self.region_repository.get_by_codes(region_codes)
 
-        # Update workflow regions
-        self.workflow_region_repository.update_workflow_region_mapping(updated_workflow, regions)
+            # Update workflow regions
+            self.workflow_region_repository.update_workflow_region_mapping(updated_workflow, regions)
 
-        self.session.commit()
+            self.session.commit()
 
-        self.session.refresh(updated_workflow)
+            self.session.refresh(updated_workflow)
 
-        return updated_workflow
+            return updated_workflow
+        except Exception:
+            self.session.rollback()
+            raise
     
 
-    def fetch_workflow(self, workflow: WorkflowFetch):
+    def fetch_workflow(self, workflow: WorkflowFetch, current_user: CurrentUser):
 
         rows = self.workflow_repository.fetch_workflow_by_search_criteria(workflow)
 
         return [
             FetchWorkflowResponse(
                 id=workflow.id,
-                org_id=workflow.org_id,
+                org_id=current_user.org_id,
                 org_name=org_name,
                 org_unit_id=workflow.org_unit_id,
                 org_unit_name=org_unit_name,
@@ -109,7 +113,6 @@ class WorkflowService:
                 description=workflow.description,
                 is_active=workflow.is_active,
                 created_on=workflow.created_on,
-                created_by=workflow.created_by,
                 created_by_name=created_by_name,
             )
             for workflow, created_by_name, org_name, org_unit_name in rows
@@ -119,6 +122,10 @@ class WorkflowService:
     def delete_workflow(self, workflow_id: int, current_user: CurrentUser):
         """Delete a workflow by its ID"""
 
-        self.workflow_repository.delete(workflow_id, current_user.user_id)
-
-        return {"status": "success", "message": f"Workflow with ID {workflow_id} has been deleted."}
+        try:
+            self.workflow_repository.delete(workflow_id, current_user.user_id)
+            self.session.commit()
+            return {"status": "success", "message": f"Workflow with ID {workflow_id} has been deleted."}
+        except Exception:
+            self.session.rollback()
+            raise

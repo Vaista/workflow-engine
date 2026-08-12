@@ -36,7 +36,7 @@ class FakeWorkflowService:
 
         return self.result
 
-    def fetch_workflow(self, workflow):
+    def fetch_workflow(self, workflow, current_user):
 
         if self.exception:
             raise self.exception

@@ -37,7 +37,6 @@ class WorkflowRepository:
 
     def update(self, workflow: Workflow):
         # Update an existing workflow
-        self.session.merge(workflow)
         self.session.flush()
         return workflow
 
@@ -126,11 +125,11 @@ class WorkflowRepository:
         if result:
             result.is_deleted = True
             result.deleted_at = func.now()
-            result.deleted_by = user_id 
-            self.session.commit()
+            result.deleted_by = user_id
+
+            self.session.flush() 
 
             return result
-
         else:
             raise WorkflowNotFound()
 

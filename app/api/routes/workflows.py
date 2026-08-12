@@ -19,10 +19,11 @@ router = APIRouter(prefix="/workflows", tags=["Workflows"])
 )
 async def fetch_workflows(
     workflow: WorkflowFetch,
+    current_user: CurrentUser = Depends(get_current_user),
     workflow_service: WorkflowService = Depends(get_workflow_service)
 ):
     
-    return workflow_service.fetch_workflow(workflow)
+    return workflow_service.fetch_workflow(workflow, current_user)
 
 
 @router.post(
