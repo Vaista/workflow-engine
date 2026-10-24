@@ -1,4 +1,4 @@
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, selectinload
 from sqlalchemy import func, select
 from uuid import UUID
 
@@ -25,7 +25,14 @@ class WorkflowRepository:
 
     def get_workflow_by_id(self, workflow_id: int):
         # Retrieve a workflow by its ID
-        stmt = select(Workflow).where(Workflow.id == workflow_id, Workflow.is_deleted==False)
+        stmt = (
+            select(Workflow)
+            .options(
+                selectinload(Workflow.steps)
+                ,selectinload(Workflow.regions).selectinload(WorkflowRegion.region)
+            )
+            .where(Workflow.id == workflow_id, Workflow.is_deleted==False)
+        )
         result = self.session.execute(stmt).scalar_one_or_none()
         return result
 

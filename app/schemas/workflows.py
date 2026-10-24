@@ -3,7 +3,9 @@ from datetime import datetime
 from typing import Annotated
 from uuid import UUID
 
+from app.schemas.region import RegionResponse
 from app.utils.pagination import OrderBy
+from app.schemas.workflow_steps import WorkflowStepResponse
 
 
 class WorkflowCreate(BaseModel):
@@ -38,12 +40,19 @@ class FetchWorkflowResponse(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
 
+class WorkflowRegionResponse(BaseModel):
+    region: RegionResponse
+
+    model_config = ConfigDict(from_attributes=True)
+
+
 class WorkflowResponse(BaseModel):
     name: str
     description: str | None
     is_active: bool
     created_on: datetime
-    region_codes: list[str]
+    regions: list[WorkflowRegionResponse] = []
+    steps: list[WorkflowStepResponse] = []
 
     model_config = ConfigDict(from_attributes=True)
 

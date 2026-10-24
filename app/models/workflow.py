@@ -3,7 +3,7 @@ from datetime import datetime
 from uuid import UUID
 from typing import Optional
 from sqlalchemy import String, Integer, JSON, ForeignKey, func, DateTime, sql, UniqueConstraint
-from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 
 class Workflow(Base):
@@ -23,6 +23,9 @@ class Workflow(Base):
     deleted_at: Mapped[datetime | None] = mapped_column(DateTime)
     deleted_by: Mapped[UUID | None] = mapped_column(ForeignKey("users.user_id"))
 
+    steps: Mapped[list["WorkflowStep"]] = relationship(back_populates="workflow", order_by="WorkflowStep.step_number")
+    regions: Mapped[list["WorkflowRegion"]] = relationship(back_populates="workflow")
+
 
 class WorkflowRegion(Base):
     __tablename__ = "workflow_regions"
@@ -30,6 +33,9 @@ class WorkflowRegion(Base):
     id: Mapped[int] = mapped_column(primary_key=True)
     workflow_id: Mapped[int] = mapped_column(ForeignKey("workflows.id"))
     region_id: Mapped[int] = mapped_column(ForeignKey("regions.region_id"))
+
+    workflow: Mapped["Workflow"] = relationship(back_populates="regions")
+    region: Mapped["Regions"] = relationship(back_populates="workflow_regions")
 
     __table_args__ = (
             UniqueConstraint(
@@ -49,6 +55,8 @@ class WorkflowStep(Base):
     step_name: Mapped[str] = mapped_column(String(30), nullable=False)
     step_description: Mapped[str | None] = mapped_column(String(255), nullable=True)
     step_config: Mapped[dict] = mapped_column(JSON)
+
+    workflow: Mapped["Workflow"] = relationship(back_populates="steps")
 
     __table_args__ = (
         UniqueConstraint(

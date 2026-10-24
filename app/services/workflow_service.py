@@ -119,6 +119,17 @@ class WorkflowService:
         ]
 
 
+    def get_workflow_by_id(self, workflow_id: int, current_user: CurrentUser):
+        """Get a workflow by its ID"""
+
+        workflow = self.workflow_repository.get_workflow_by_id(workflow_id)
+
+        if not workflow:
+            raise WorkflowNotFound()
+
+        return workflow
+    
+
     def delete_workflow(self, workflow_id: int, current_user: CurrentUser):
         """Delete a workflow by its ID"""
 

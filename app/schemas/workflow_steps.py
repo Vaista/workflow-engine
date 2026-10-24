@@ -1,4 +1,4 @@
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, ConfigDict, Field
 from typing import Annotated
 
 
@@ -7,3 +7,12 @@ class WorkflowStepCreate(BaseModel):
     step_name: Annotated[str, Field(min_length=3, max_length=30)]
     step_description: str | None = Field(default=None, max_length=255)
     step_config: dict
+
+
+class WorkflowStepResponse(BaseModel):
+    step_number: int
+    step_name: str
+    step_description: str | None
+    step_config: dict
+
+    model_config = ConfigDict(from_attributes=True)
