@@ -16,3 +16,8 @@ class WorkflowStepResponse(BaseModel):
     step_config: dict
 
     model_config = ConfigDict(from_attributes=True)
+
+
+class WorkflowStepResult(BaseModel):
+    message: str
+    data: WorkflowStepResponse

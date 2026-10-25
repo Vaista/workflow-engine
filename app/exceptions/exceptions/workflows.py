@@ -15,3 +15,7 @@ class DuplicateWorkflowStepNumber(AppException):
 
 class InvalidWorkflowStepNumber(AppException):
     pass
+
+
+class WorkflowStepNotFound(AppException):
+    pass

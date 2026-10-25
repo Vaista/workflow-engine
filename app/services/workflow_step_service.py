@@ -1,8 +1,9 @@
 from sqlalchemy.orm import Session
 
-from app.exceptions.exceptions.workflows import DuplicateWorkflowStepNumber, InvalidWorkflowStepNumber, WorkflowNotFound
+from app.exceptions.exceptions.workflows import DuplicateWorkflowStepNumber, InvalidWorkflowStepNumber, WorkflowNotFound, WorkflowStepNotFound
 from app.repositories.workflow_step_repository import WorkflowStepRepository
 from app.repositories.workflow_repository import WorkflowRepository
+from app.schemas.workflow_steps import WorkflowStepCreate
 
 
 class WorkflowStepService:
@@ -16,7 +17,7 @@ class WorkflowStepService:
         self.workflow_step_repository = workflow_step_repository
 
 
-    def create_workflow_step(self, workflow_id: int, step):
+    def create_workflow_step(self, workflow_id: int, step: WorkflowStepCreate):
         try:
             # Check if the workflow exists
             workflow = self.workflow_repository.get_workflow_by_id(workflow_id)
@@ -39,6 +40,53 @@ class WorkflowStepService:
             self.session.commit()
 
             return new_step
+        
+        except Exception as e:
+            self.session.rollback()
+            raise e
+
+    def update_workflow_step(self, workflow_id: int, step: WorkflowStepCreate):
+        try:
+            # Check if the workflow exists
+            workflow = self.workflow_repository.get_workflow_by_id(workflow_id)
+            if not workflow:
+                raise WorkflowNotFound()
+
+            # Check if the step number already exists for the given workflow (excluding the current step)
+            existing_step = self.workflow_step_repository.get_workflow_step_by_number(workflow_id, step.step_number)
+            if not existing_step:
+                raise WorkflowStepNotFound()
+
+            # Update the workflow step
+            updated_step = self.workflow_step_repository.update_workflow_step(workflow_id, step)
+
+            self.session.commit()
+
+            return updated_step
+        
+        except Exception as e:
+            self.session.rollback()
+            raise e
+
+
+    def delete_workflow_step(self, workflow_id: int, step_number: int):
+        try:
+            # Check if the workflow exists
+            workflow = self.workflow_repository.get_workflow_by_id(workflow_id)
+            if not workflow:
+                raise WorkflowNotFound()
+
+            # Check if the step number exists for the given workflow
+            existing_step = self.workflow_step_repository.get_workflow_step_by_number(workflow_id, step_number)
+            if not existing_step:
+                raise WorkflowStepNotFound()
+
+            # Delete the workflow step
+            self.workflow_step_repository.delete_workflow_step(workflow_id, step_number)
+            
+            self.session.commit()
+
+            return existing_step
         
         except Exception as e:
             self.session.rollback()

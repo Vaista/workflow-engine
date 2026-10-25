@@ -5,7 +5,8 @@ from app.exceptions.exceptions.workflows import (
     WorkflowAlreadyExists,
     WorkflowNotFound,
     DuplicateWorkflowStepNumber,
-    InvalidWorkflowStepNumber
+    InvalidWorkflowStepNumber,
+    WorkflowStepNotFound
 )
 
 
@@ -67,6 +68,22 @@ def register_workflow_handlers(app: FastAPI):
                 "error": {
                     "code": "INVALID_WORKFLOW_STEP_NUMBER",
                     "message": "Invalid workflow step number. The step number must be greater than the last step number for the given workflow.",
+                }
+            },
+        )
+
+
+    @app.exception_handler(WorkflowStepNotFound)
+    async def workflow_step_not_found(
+        request: Request,
+        exc: WorkflowStepNotFound,
+    ):
+        return JSONResponse(
+            status_code=404,
+            content={
+                "error": {
+                    "code": "WORKFLOW_STEP_NOT_FOUND",
+                    "message": "Workflow step not found.",
                 }
             },
         )
