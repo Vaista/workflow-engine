@@ -1,9 +1,11 @@
 from sqlalchemy.orm import Session
 from fastapi import Depends
 
+from app.repositories.organization_repository import OrganizationRepository
 from app.repositories.workflow_repository import WorkflowRepository, WorkflowRegionRepository
 from app.repositories.workflow_step_repository import WorkflowStepRepository
 from app.repositories.region_repository import RegionRepository
+from app.services.organization_service import OrganizationService
 from app.services.workflow_service import WorkflowService
 from app.services.workflow_step_service import WorkflowStepService
 from app.services.region_service import RegionService
@@ -44,5 +46,15 @@ def get_region_service(
     region_repository = RegionRepository(session)
     return RegionService(
         region_repository=region_repository,
+        session=session
+    )
+
+
+def get_organization_service(
+    session: Session = Depends(get_db),
+) -> "OrganizationService":
+    organization_repository = OrganizationRepository(session)
+    return OrganizationService(
+        organization_repository=organization_repository,
         session=session
     )

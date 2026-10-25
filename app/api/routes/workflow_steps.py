@@ -1,8 +1,10 @@
 from fastapi import APIRouter, Depends, status
 
+from app.api.deps import get_current_user
 from app.provider.services import get_workflow_step_service
 from app.provider.services import get_workflow_step_service
-from app.schemas.workflow_steps import WorkflowStepCreate, WorkflowStepResponse, WorkflowStepResult
+from app.schemas.auth import CurrentUser
+from app.schemas.workflow_steps import WorkflowStepCreate, WorkflowStepResult
 from app.services.workflow_step_service import WorkflowStepService
 
 
@@ -17,6 +19,7 @@ workflow_steps_router = APIRouter(prefix="/workflow", tags=["Workflow Steps"])
 async def create_workflow_steps(
     workflow_id: int, 
     step: WorkflowStepCreate,
+    current_user: CurrentUser = Depends(get_current_user),
     workflow_step_service: WorkflowStepService = Depends(get_workflow_step_service)
     ):
 
@@ -35,6 +38,7 @@ async def create_workflow_steps(
 def update_workflow_steps(
     workflow_id: int,
     step: WorkflowStepCreate,
+    current_user: CurrentUser = Depends(get_current_user),
     workflow_step_service: WorkflowStepService = Depends(get_workflow_step_service)
     ):
 
@@ -53,6 +57,7 @@ def update_workflow_steps(
 def delete_workflow_steps(
     workflow_id: int,
     step_number: int,
+    current_user: CurrentUser = Depends(get_current_user),
     workflow_step_service: WorkflowStepService = Depends(get_workflow_step_service)
     ):
 
