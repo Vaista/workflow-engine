@@ -4,6 +4,7 @@ from fastapi import Depends
 from app.repositories.workflow_repository import WorkflowRepository, WorkflowRegionRepository
 from app.repositories.region_repository import RegionRepository
 from app.services.workflow_service import WorkflowService
+from app.services.region_service import RegionService
 from app.api.deps import get_db
 
 
@@ -19,4 +20,14 @@ def get_workflow_service(
         workflow_region_repository=workflow_region_repository,
         region_repository=region_repository,
         session=session,
+    )
+
+
+def get_region_service(
+    session: Session = Depends(get_db),
+) -> RegionService:
+    region_repository = RegionRepository(session)
+    return RegionService(
+        region_repository=region_repository,
+        session=session
     )

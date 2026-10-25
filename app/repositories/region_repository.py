@@ -29,3 +29,9 @@ class RegionRepository:
             raise InvalidRegionCodeException(missing)
         
         return regions
+
+    def get_all_regions(self):
+        """Get all regions"""
+        stmt = select(Regions)
+        regions = self.session.execute(stmt).scalars().all()
+        return regions
