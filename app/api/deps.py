@@ -3,7 +3,7 @@ from app.schemas.auth import CurrentUser
 from app.db.session import SessionLocal
 
 
-async def get_db():
+def get_db():
     # Placeholder for database connection logic
     session = SessionLocal()
     try:

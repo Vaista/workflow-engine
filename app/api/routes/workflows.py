@@ -39,15 +39,7 @@ async def create_workflow(
 
     created_workflow = workflow_service.create_workflow(workflow, current_user)
 
-    response = WorkflowResponse(
-        name=created_workflow.name,
-        description=created_workflow.description,
-        is_active=created_workflow.is_active,
-        created_on=created_workflow.created_on,
-        region_codes=workflow.region_codes
-    )
-
-    return response
+    return created_workflow
 
 
 @router.post(

@@ -105,7 +105,7 @@ CREATE TABLE workflow_steps (
 CREATE TABLE workflow_regions (
     id SERIAL PRIMARY KEY NOT NULL,
     workflow_id INT REFERENCES workflows(id),
-    region_id INT REFERENCES regions(region_id)
+    region_id INT REFERENCES regions(region_id),
     CONSTRAINT uq_workflow_region_ids UNIQUE (workflow_id, region_id)
 );
 
@@ -159,3 +159,7 @@ ON workflow_runs(workflow_id, status, started_at DESC);
 
 CREATE INDEX idx_workflow_log
 ON workflow_logs(workflow_run_id, execution_timestamp DESC);
+
+CREATE UNIQUE INDEX uq_workflows_live_name_per_unit
+ON workflows (org_unit_id, name)
+WHERE is_deleted = false;
