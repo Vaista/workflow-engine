@@ -8,3 +8,10 @@ class WorkflowAlreadyExists(AppException):
 class WorkflowNotFound(AppException):
     pass
 
+
+class DuplicateWorkflowStepNumber(AppException):
+    pass
+
+
+class InvalidWorkflowStepNumber(AppException):
+    pass

@@ -2,7 +2,7 @@ from app.db.base import Base
 from datetime import datetime
 from uuid import UUID
 from typing import Optional
-from sqlalchemy import String, Integer, JSON, ForeignKey, func, DateTime, sql, UniqueConstraint
+from sqlalchemy import CheckConstraint, String, Integer, JSON, ForeignKey, func, DateTime, sql, UniqueConstraint
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 
@@ -48,6 +48,10 @@ class WorkflowRegion(Base):
 
 class WorkflowStep(Base):
     __tablename__ = "workflow_steps"
+
+    __table_args__ = (
+        CheckConstraint("step_number > 0", name="ck_workflow_steps_step_number_positive"),
+    )
 
     id: Mapped[int] = mapped_column(primary_key=True)
     workflow_id: Mapped[int] = mapped_column(ForeignKey("workflows.id"))
