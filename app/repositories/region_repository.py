@@ -30,6 +30,12 @@ class RegionRepository:
         
         return regions
 
+    def get_region_by_code(self, code: str):
+        """Get region by code"""
+        stmt = select(Regions).where(Regions.code == code)
+        region = self.session.execute(stmt).scalar_one_or_none()
+        return region
+
     def get_all_regions(self):
         """Get all regions"""
         stmt = select(Regions)

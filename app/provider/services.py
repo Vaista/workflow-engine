@@ -54,7 +54,9 @@ def get_organization_service(
     session: Session = Depends(get_db),
 ) -> "OrganizationService":
     organization_repository = OrganizationRepository(session)
+    region_repository = RegionRepository(session)
     return OrganizationService(
         organization_repository=organization_repository,
+        region_repository=region_repository,
         session=session
     )

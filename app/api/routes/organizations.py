@@ -4,7 +4,7 @@ from app.api.deps import get_current_user
 from app.provider.services import get_organization_service
 from app.schemas.auth import CurrentUser
 from app.services.organization_service import OrganizationService
-from app.schemas.organizations import OrganizationResponse, OrganizationCreate
+from app.schemas.organizations import OrganizationResponse, OrganizationCreate, OrganizationUnitCreate
 
 
 
@@ -33,3 +33,15 @@ async def create_organization(
     organization_service: OrganizationService = Depends(get_organization_service)
     ):
     return organization_service.create_organization(organization)
+
+
+@organizations_router.post(
+        "/{organization_id}/units", response_model=OrganizationResponse, status_code=status.HTTP_201_CREATED
+        )
+async def create_organization_unit(
+    organization_id: int,
+    unit: OrganizationUnitCreate,
+    current_user: CurrentUser = Depends(get_current_user),
+    organization_service: OrganizationService = Depends(get_organization_service)
+    ):
+    return organization_service.create_organization_unit(organization_id, unit)
