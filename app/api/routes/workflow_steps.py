@@ -16,7 +16,7 @@ workflow_steps_router = APIRouter(prefix="/workflow", tags=["Workflow Steps"])
         response_model=WorkflowStepResult,
         status_code=status.HTTP_200_OK
     )
-async def create_workflow_steps(
+def create_workflow_steps(
     workflow_id: int, 
     step: WorkflowStepCreate,
     current_user: CurrentUser = Depends(get_current_user),

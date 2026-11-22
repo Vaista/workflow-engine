@@ -15,7 +15,7 @@ regions_router = APIRouter(prefix="/regions", tags=["Regions"])
     status_code=status.HTTP_200_OK,
     response_model=list[RegionResponse]
 )
-async def get_regions(
+def get_regions(
     current_user: CurrentUser = Depends(get_current_user),
     region_service: RegionService = Depends(get_region_service)
 ):

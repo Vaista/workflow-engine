@@ -26,7 +26,7 @@ CREATE TABLE organization_units (
 
 CREATE TABLE users (
     user_id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    org_id int REFERENCES organizations(id),
+    org_id int REFERENCES organizations(org_id),
     org_unit_id int REFERENCES organization_units(org_unit_id),
     name varchar(60) not null,
     email TEXT UNIQUE NOT NULL,

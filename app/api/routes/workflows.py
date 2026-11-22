@@ -17,7 +17,7 @@ router = APIRouter(prefix="/workflows", tags=["Workflows"])
     status_code=status.HTTP_200_OK,
     response_model=list[FetchWorkflowResponse]
 )
-async def fetch_workflows(
+def fetch_workflows(
     workflow: WorkflowFetch,
     current_user: CurrentUser = Depends(get_current_user),
     workflow_service: WorkflowService = Depends(get_workflow_service)
@@ -31,7 +31,7 @@ async def fetch_workflows(
     response_model=WorkflowResponse,
     status_code=status.HTTP_201_CREATED
 )
-async def create_workflow(
+def create_workflow(
     workflow: WorkflowCreate,
     current_user: CurrentUser = Depends(get_current_user),
     workflow_service: WorkflowService = Depends(get_workflow_service)
@@ -47,7 +47,7 @@ async def create_workflow(
     response_model=WorkflowUpdateResponse,
     status_code=status.HTTP_200_OK
 )
-async def update_workflow(
+def update_workflow(
     workflow_id: int,
     workflow: WorkflowCreate,
     current_user: CurrentUser = Depends(get_current_user),
@@ -70,7 +70,7 @@ async def update_workflow(
     "/{workflow_id}",
     status_code=status.HTTP_200_OK
 )
-async def delete_workflow(
+def delete_workflow(
     workflow_id: int,
     current_user: CurrentUser = Depends(get_current_user),
     workflow_service: WorkflowService = Depends(get_workflow_service)
@@ -85,7 +85,7 @@ async def delete_workflow(
     response_model=WorkflowResponse,
     status_code=status.HTTP_200_OK
 )
-async def get_workflow(
+def get_workflow(
     workflow_id: int,
     current_user: CurrentUser = Depends(get_current_user),
     workflow_service: WorkflowService = Depends(get_workflow_service)

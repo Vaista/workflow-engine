@@ -9,7 +9,7 @@ router = APIRouter(prefix="/auth", tags=["Authentication"])
 
 
 @router.get("/me")
-async def me(
+def me(
     user: Annotated[CurrentUser, Depends(get_current_user)],
     db: Annotated[dict, Depends(get_db)],
 ):
