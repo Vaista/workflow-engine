@@ -61,3 +61,12 @@ class OrganizationRepository:
         )
 
         return self.session.execute(stmt).scalar_one_or_none()
+
+    def get_organization_unit_by_id(self, organization_id: int, unit_id: int):
+        # Fetch the organization unit from the database using the provided organization_id and unit_id
+        stmt = select(OrganizationUnits).where(
+            OrganizationUnits.org_id == organization_id,
+            OrganizationUnits.org_unit_id == unit_id
+        )
+
+        return self.session.execute(stmt).scalar_one_or_none()

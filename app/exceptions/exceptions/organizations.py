@@ -9,3 +9,6 @@ class OrganizationUnitAlreadyExistsException(AppException):
 
 class OrganizationNotFoundException(AppException):
     pass
+
+class OrganizationUnitNotFoundException(AppException):
+    pass

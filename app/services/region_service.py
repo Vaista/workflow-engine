@@ -4,7 +4,6 @@ from app.repositories.region_repository import RegionRepository
 from app.schemas.auth import CurrentUser
 
 
-
 class RegionService:
     def __init__ (
             self, 

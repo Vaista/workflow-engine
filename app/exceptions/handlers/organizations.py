@@ -4,7 +4,8 @@ from fastapi.responses import JSONResponse
 from app.exceptions.exceptions.organizations import (
     OrganizationAlreadyExistsException,
     OrganizationNotFoundException,
-    OrganizationUnitAlreadyExistsException
+    OrganizationUnitAlreadyExistsException,
+    OrganizationUnitNotFoundException
 )
 
 
@@ -51,6 +52,21 @@ def register_organization_handlers(app: FastAPI):
                 "error": {
                     "code": "ORGANIZATION_UNIT_ALREADY_EXISTS",
                     "message": "Organization unit already exists.",
+                }
+            },
+        )
+
+    @app.exception_handler(OrganizationUnitNotFoundException)
+    async def organization_unit_not_found(
+        request: Request,
+        exc: OrganizationUnitNotFoundException,
+    ):
+        return JSONResponse(
+            status_code=404,
+            content={
+                "error": {
+                    "code": "ORGANIZATION_UNIT_NOT_FOUND",
+                    "message": "Organization unit not found.",
                 }
             },
         )
