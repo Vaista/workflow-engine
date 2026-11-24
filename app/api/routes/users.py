@@ -7,9 +7,10 @@ from app.provider.services import get_user_service
 router = APIRouter(prefix="/users", tags=["Users"])
 
 
-@router.get("/{user_id}")
-def get_user(user_id: int):
-    return {"user_id": user_id}
+@router.get("/{user_email}", response_model=UserResponse, status_code=status.HTTP_200_OK)
+def get_user(user_email: str, user_service: UserService = Depends(get_user_service)):
+    user = user_service.get_user_by_email(user_email)
+    return user
 
 
 @router.get("/")

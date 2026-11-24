@@ -1,7 +1,7 @@
 from sqlalchemy.orm import Session
 
 from app.exceptions.exceptions.organizations import OrganizationNotFoundException, OrganizationUnitNotFoundException
-from app.exceptions.exceptions.users import UserAlreadyExistsException
+from app.exceptions.exceptions.users import UserAlreadyExistsException, UserNotFoundException
 from app.repositories.user_repository import UserRepository
 from app.repositories.organization_repository import OrganizationRepository
 from app.schemas.users import UserCreate
@@ -35,3 +35,9 @@ class UserService:
         except Exception as e:
             self.session.rollback()
             raise e
+
+    def get_user_by_email(self, email: str):
+        user = self.user_repository.get_user_by_email(email)
+        if not user:
+            raise UserNotFoundException()
+        return user
