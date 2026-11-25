@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends, status
 
-from app.api.deps import get_current_user
+from app.provider.auth import get_current_user
 from app.provider.services import get_workflow_step_service
 from app.provider.services import get_workflow_step_service
 from app.schemas.auth import CurrentUser

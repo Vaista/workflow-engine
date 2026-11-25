@@ -5,6 +5,7 @@ from app.repositories.organization_repository import OrganizationRepository
 from app.repositories.workflow_repository import WorkflowRepository, WorkflowRegionRepository
 from app.repositories.workflow_step_repository import WorkflowStepRepository
 from app.repositories.region_repository import RegionRepository
+from app.services.auth_service import AuthService
 from app.services.organization_service import OrganizationService
 from app.services.user_service import UserService
 from app.repositories.user_repository import UserRepository
@@ -12,6 +13,13 @@ from app.services.workflow_service import WorkflowService
 from app.services.workflow_step_service import WorkflowStepService
 from app.services.region_service import RegionService
 from app.api.deps import get_db
+
+
+def get_auth_service(
+    session: Session = Depends(get_db),
+) -> "AuthService":
+    user_repository = UserRepository(session)
+    return AuthService(user_repository=user_repository)
 
 
 def get_workflow_service(
@@ -74,3 +82,9 @@ def get_user_service(
         organization_repository=organization_repository,
         session=session
     )
+
+
+def get_user_repository(
+    session: Session = Depends(get_db),
+) -> "UserRepository":
+    return UserRepository(session)

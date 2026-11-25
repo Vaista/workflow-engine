@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends, status
 
-from app.api.deps import get_current_user
+from app.provider.auth import get_current_user
 from app.schemas.auth import CurrentUser
 from app.schemas.region import RegionResponse
 from app.services.region_service import RegionService

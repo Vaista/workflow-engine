@@ -9,6 +9,11 @@ class UserRepository:
     def __init__(self, session: Session):
         self.session = session
 
+    def get_by_id(self, user_id: str):
+        stmt = select(Users).where(Users.user_id == user_id)
+        result = self.session.execute(stmt).scalar_one_or_none()
+        return result
+
     def get_user_by_email(self, email: str):
         stmt = select(Users).where(Users.email == email.strip().lower())
         result = self.session.execute(stmt).scalar_one_or_none()

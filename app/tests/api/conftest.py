@@ -4,7 +4,7 @@ from uuid import UUID
 
 from app.provider.services import get_workflow_service
 from app.schemas.auth import CurrentUser
-from app.api.deps import get_current_user
+from app.provider.auth import get_current_user
 from app.main import app
 
 
